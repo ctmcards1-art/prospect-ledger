@@ -1,0 +1,12 @@
+# PROSPECT LEDGER RANKINGS. Edit this file to update the site.
+# One player per line, in any order. Lines starting with # are ignored.
+# rank   = your ranking number (required)
+# name   = the player's full name as MLB lists it (required)
+# mlb_id = optional; only needed if two players share a name (the number in their MLB.com player URL)
+# fv     = optional Future Value grade on the 20-80 scale, e.g. 60
+# eta    = optional year you expect him in the majors, e.g. 2027
+# blurb  = optional scouting write-up; wrap it in "double quotes" if it contains commas
+#
+# Example (delete the # to use it):
+# 1,Firstname Lastname,,60,2027,"Plus bat speed, advanced approach, likely a regular at second base."
+rank,name,mlb_id,fv,eta,blurb
