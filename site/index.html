@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prospect Ledger</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Prospect rankings and a daily minor league transaction wire.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: publication masthead over a single reading column; list and wire are dense ledgers, player page is a scouting card */
+:root{
+  --paper:#f4f6f3; --surface:#ffffff; --sunk:#e9eee9; --line:#d3dbd5;
+  --ink:#16201b; --muted:#5b6a62; --pine:#1d4a37; --pine-ink:#ffffff; --flag:#c99700;
+  --up:#1d7a4d; --down:#b13a2c;
+  --f-display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --f-body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --f-data:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0e1512; --surface:#151f1a; --sunk:#1c2822; --line:#2a3931;
+  --ink:#e6ece8; --muted:#94a49b; --pine:#7cc8a2; --pine-ink:#0e1512; --flag:#e9bd3c;
+  --up:#5bc893; --down:#ef7a6a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0e1512; --surface:#151f1a; --sunk:#1c2822; --line:#2a3931;
+  --ink:#e6ece8; --muted:#94a49b; --pine:#7cc8a2; --pine-ink:#0e1512; --flag:#e9bd3c;
+  --up:#5bc893; --down:#ef7a6a; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+button,input,select{font:inherit}
+:focus-visible{outline:2px solid var(--flag);outline-offset:2px}
+
+/* masthead */
+.mast{border-bottom:4px double var(--ink);padding-block:28px 14px}
+.mast .row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px}
+.mast h1{margin:0;font-family:var(--f-display);font-weight:900;font-size:clamp(2.6rem,7vw,4.4rem);line-height:.88;letter-spacing:.005em;text-transform:uppercase}
+.mast h1 a{text-decoration:none}
+.mast .tag{font-family:var(--f-data);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+nav.sections{display:flex;gap:2px;flex-wrap:wrap}
+nav.sections a{font-family:var(--f-display);font-weight:800;font-size:1.05rem;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;padding:6px 12px;border-radius:3px;color:var(--muted)}
+nav.sections a[aria-current="page"]{background:var(--pine);color:var(--pine-ink)}
+.dateline{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--f-data);font-size:.72rem;color:var(--muted);padding-block:8px;border-bottom:1px solid var(--line);letter-spacing:.04em}
+.preview{background:color-mix(in srgb,var(--flag) 16%,transparent);border:1px solid var(--flag);color:var(--ink);font-family:var(--f-data);font-size:.78rem;padding:8px 12px;border-radius:4px;margin-top:14px}
+
+main{padding-block:24px 64px}
+h2.sec{font-family:var(--f-display);font-weight:900;font-size:2.1rem;text-transform:uppercase;line-height:1;margin:0;letter-spacing:.01em}
+.sec-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px;margin-bottom:16px}
+.sec-head p{margin:4px 0 0;color:var(--muted);font-size:.95rem;max-width:62ch}
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.filters input,.filters select{padding:7px 10px;border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--ink);font-size:.9rem;min-width:0}
+.filters input{width:200px;max-width:100%}
+.toggle{display:inline-flex;align-items:center;gap:6px;font-size:.9rem;color:var(--muted)}
+
+/* ranking ledger */
+.ledger{background:var(--surface);border:1px solid var(--line);border-radius:4px}
+.ledger-row{display:grid;grid-template-columns:56px 1fr auto;gap:4px 16px;padding:14px 16px;border-bottom:1px solid var(--line);text-decoration:none;color:inherit;align-items:start}
+.ledger-row:last-child{border-bottom:0}
+.ledger-row:hover{background:var(--sunk)}
+.rk{font-family:var(--f-display);font-weight:900;font-size:2.1rem;line-height:.95;font-variant-numeric:tabular-nums;text-align:right}
+.mv{display:block;font-family:var(--f-data);font-size:.68rem;font-weight:500;text-align:right;margin-top:4px}
+.mv.up{color:var(--up)} .mv.down{color:var(--down)} .mv.new{color:var(--flag)} .mv.flat{color:var(--muted)}
+.who{min-width:0}
+.who .nm{font-weight:600;font-size:1.12rem;line-height:1.25}
+.who .meta{font-family:var(--f-data);font-size:.74rem;color:var(--muted);letter-spacing:.03em;margin-top:3px;display:flex;flex-wrap:wrap;gap:4px 12px}
+.who .blurb{margin:8px 0 0;font-size:.94rem;color:var(--ink);max-width:68ch}
+.line{font-family:var(--f-data);font-size:.76rem;color:var(--muted);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;line-height:1.7}
+.line b{color:var(--ink);font-weight:500}
+.fv{display:inline-block;font-family:var(--f-data);font-size:.7rem;font-weight:500;border:1px solid var(--pine);color:var(--pine);border-radius:3px;padding:0 5px}
+.lvl{display:inline-block;font-family:var(--f-data);font-size:.68rem;font-weight:500;background:var(--sunk);border-radius:3px;padding:0 5px;color:var(--ink)}
+.lvl.mlb{background:var(--pine);color:var(--pine-ink)}
+@media (max-width:640px){
+  .ledger-row{grid-template-columns:44px 1fr}
+  .rk{font-size:1.7rem}
+  .line{grid-column:2;text-align:left;white-space:normal}
+}
+
+/* wire */
+.day{margin-bottom:22px}
+.day h3{font-family:var(--f-display);font-weight:800;font-size:1.2rem;letter-spacing:.05em;text-transform:uppercase;margin:0 0 6px;padding-bottom:4px;border-bottom:2px solid var(--ink)}
+.tx{display:grid;grid-template-columns:118px 1fr;gap:4px 14px;padding:10px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.tx:last-child{border-bottom:0}
+.kind{font-family:var(--f-data);font-size:.68rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:3px;justify-self:start;white-space:nowrap}
+.k-Promoted,.k-Called{background:color-mix(in srgb,var(--up) 15%,transparent);color:var(--up)}
+.k-Demoted,.k-Optioned,.k-Released{background:color-mix(in srgb,var(--down) 13%,transparent);color:var(--down)}
+.k-Trade,.k-Rule{background:color-mix(in srgb,var(--flag) 18%,transparent);color:var(--ink)}
+.k-Injured,.k-Signed,.k-Other{background:var(--sunk);color:var(--muted)}
+.tx .what{min-width:0}
+.tx .pl{font-weight:600}
+.tx .pl a{text-decoration-color:var(--line);text-underline-offset:3px}
+.tx .path{font-family:var(--f-data);font-size:.76rem;color:var(--muted);margin-left:6px}
+.tx .desc{display:block;font-size:.9rem;color:var(--muted)}
+.rkbadge{font-family:var(--f-data);font-size:.68rem;font-weight:500;background:var(--ink);color:var(--paper);border-radius:3px;padding:0 5px;margin-right:6px;vertical-align:1px}
+@media (max-width:560px){.tx{grid-template-columns:1fr}}
+
+/* player card */
+.back{font-family:var(--f-data);font-size:.78rem;color:var(--muted);text-decoration:none;display:inline-block;margin-bottom:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.card-head{display:grid;grid-template-columns:auto 1fr;gap:4px 20px;padding:20px;border-bottom:3px solid var(--pine);align-items:end}
+.card-head .rk{font-size:3.6rem;text-align:left;color:var(--pine)}
+.card-head h2{font-family:var(--f-display);font-weight:900;font-size:clamp(2rem,6vw,3rem);text-transform:uppercase;line-height:.92;margin:0;text-wrap:balance}
+.card-head .meta{font-family:var(--f-data);font-size:.78rem;color:var(--muted);margin-top:6px;display:flex;flex-wrap:wrap;gap:4px 14px}
+.card-body{padding:20px;display:flex;flex-direction:column;gap:22px}
+.card-body .blurb{font-size:1.05rem;margin:0;max-width:65ch}
+.facts{display:flex;flex-wrap:wrap;gap:10px 32px}
+.fact .k{font-family:var(--f-data);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.fact .v{font-family:var(--f-display);font-weight:800;font-size:1.6rem;line-height:1.1}
+.ladder{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.rung{text-align:center;font-family:var(--f-data);font-size:.74rem;padding:8px 0;border-radius:3px;background:var(--sunk);color:var(--muted);border:1px solid transparent}
+.rung.reached{background:color-mix(in srgb,var(--pine) 18%,var(--surface));color:var(--ink)}
+.rung.now{background:var(--pine);color:var(--pine-ink);font-weight:500}
+h4{font-family:var(--f-display);font-weight:800;font-size:1.15rem;letter-spacing:.05em;text-transform:uppercase;margin:0 0 8px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+table{width:100%;border-collapse:collapse;font-family:var(--f-data);font-size:.8rem;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th{font-weight:500;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--sunk)}
+th:nth-child(-n+3),td:nth-child(-n+3){text-align:left}
+tr:last-child td{border-bottom:0}
+.dir-tbl td:first-child a{font-family:var(--f-body);font-size:.92rem;font-weight:600;text-decoration:none}
+.dir-tbl td:first-child a:hover{text-decoration:underline}
+.dir-tbl th button{all:unset;cursor:pointer}
+.dir-tbl th button:focus-visible{outline:2px solid var(--flag)}
+.dir-tbl th[aria-sort] button{color:var(--ink)}
+.dir-tbl th:nth-child(-n+5),.dir-tbl td:nth-child(-n+5){text-align:left}
+.more{margin-top:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-family:var(--f-data);font-size:.78rem;color:var(--muted)}
+.more button{font-family:var(--f-display);font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--pine);color:var(--pine-ink);border:0;border-radius:3px;padding:7px 14px;cursor:pointer}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:4px;padding:28px 24px;color:var(--muted);max-width:70ch}
+.empty h3{font-family:var(--f-display);font-weight:800;text-transform:uppercase;color:var(--ink);margin:0 0 6px;font-size:1.4rem}
+.empty code{font-family:var(--f-data);font-size:.85em;background:var(--sunk);padding:1px 5px;border-radius:3px}
+footer{border-top:1px solid var(--line);padding-block:18px 32px;font-family:var(--f-data);font-size:.72rem;color:var(--muted)}
+@media (prefers-reduced-motion: no-preference){.ledger-row{transition:background .12s}}
+</style>
+</head>
+<body>
+<header class="wrap">
+  <div class="mast">
+    <div class="row">
+      <div>
+        <h1><a href="#top100" id="site-name">Prospect Ledger</a></h1>
+        <div class="tag">Prospect rankings · Daily transaction wire</div>
+      </div>
+      <nav class="sections" aria-label="Sections">
+        <a href="#top100" data-nav="top100">Top 100</a>
+        <a href="#players" data-nav="players">Players</a>
+        <a href="#wire" data-nav="wire">Transaction Wire</a>
+      </nav>
+    </div>
+  </div>
+  <div class="dateline"><span id="dl-left">Loading…</span><span id="dl-right"></span></div>
+  <div id="preview-note" class="preview" hidden></div>
+</header>
+<main class="wrap" id="main" tabindex="-1"></main>
+<footer class="wrap">Stats and transactions from MLB's public Stats API, refreshed automatically. Rankings and write-ups are the site's own.</footer>
+
+<script>
+(function(){
+"use strict";
+const SITE_NAME = "Prospect Ledger";
+const LEVELS = ["ROK","A","A+","AA","AAA","MLB"];
+const $ = (s)=>document.querySelector(s);
+const esc = (s)=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtDay = (d)=>new Date(d+"T12:00:00").toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
+let DATA = null;
+let filt = { q:"", org:"", kind:"" };
+let wireRankedOnly = false;
+let ALL = null, allLoading = null, allFailed = false;
+let dir = { q:"", org:"", level:"", kind:"H", sort:"pa", desc:true, show:100 };
+function loadAll(){
+  if (ALL || allLoading) return allLoading;
+  allLoading = fetch("data/players.json",{cache:"no-cache"})
+    .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(d=>{ ALL = d; })
+    .catch(()=>{ allFailed = true; ALL = {players:{},orgs:{}}; })
+    .finally(()=>render());
+  return allLoading;
+}
+const lineOf = (p)=> p.total || p.byLevel?.[p.byLevel.length-1]?.line || null;
+
+document.title = SITE_NAME;
+$("#site-name").textContent = SITE_NAME;
+
+function lvlTag(l){ return l ? `<span class="lvl${l==="MLB"?" mlb":""}">${esc(l)}</span>` : ""; }
+function move(r){
+  if (r.prevRank === undefined) return "";
+  if (r.prevRank === null) return `<span class="mv new">NEW</span>`;
+  const d = r.prevRank - r.rank;
+  if (!d) return `<span class="mv flat">—</span>`;
+  return `<span class="mv ${d>0?"up":"down"}">${d>0?"▲":"▼"} ${Math.abs(d)}</span>`;
+}
+function summaryLine(s){
+  if (!s) return "";
+  const lv = s.levels.join("/");
+  if (s.group === "hitting") return `<b>${esc(s.avg??"—")}/${esc(s.obp??"—")}/${esc(s.slg??"—")}</b><br>${s.hr} HR · ${s.sb} SB · ${s.kPct??"—"}% K · ${s.bbPct??"—"}% BB<br>${s.season} · ${esc(lv)} · ${s.pa} PA`;
+  return `<b>${esc(s.era??"—")} ERA · ${esc(s.whip??"—")} WHIP</b><br>${s.kPct??"—"}% K · ${s.bbPct??"—"}% BB<br>${s.season} · ${esc(lv)} · ${esc(s.ip)} IP`;
+}
+
+// ---------- Top 100 ----------
+function viewTop(){
+  const R = DATA.rankings || [];
+  if (!R.length) return emptyRankings();
+  const orgs = [...new Set(R.map(r=>r.org).filter(Boolean))].sort();
+  const q = filt.q.toLowerCase();
+  const list = R.filter(r=>(!filt.org||r.org===filt.org)
+    && (!filt.kind || (filt.kind==="P" ? r.pos==="P" : r.pos!=="P"))
+    && (!q || r.name.toLowerCase().includes(q) || (r.orgName||"").toLowerCase().includes(q)));
+  const top = R.length>=100 ? "Top 100" : `Top ${R.length}`;
+  return `<div class="sec-head">
+    <div><h2 class="sec">${top} Prospects</h2><p>Our rankings, with each player's current level and latest season line. Arrows show movement since the last update.</p></div>
+    <div class="filters">
+      <input id="f-q" type="search" placeholder="Search player or team" value="${esc(filt.q)}" aria-label="Search">
+      <select id="f-org" aria-label="Organization"><option value="">All organizations</option>${orgs.map(o=>`<option${o===filt.org?" selected":""}>${esc(o)}</option>`).join("")}</select>
+      <select id="f-kind" aria-label="Position group"><option value="">Hitters &amp; pitchers</option><option value="H"${filt.kind==="H"?" selected":""}>Hitters</option><option value="P"${filt.kind==="P"?" selected":""}>Pitchers</option></select>
+    </div>
+  </div>
+  <div class="ledger">${list.length ? list.map(r=>`
+    <a class="ledger-row" href="${r.id?`#p-${r.id}`:"#top100"}">
+      <div><span class="rk">${r.rank}</span>${move(r)}</div>
+      <div class="who">
+        <div class="nm">${esc(r.name)}</div>
+        <div class="meta">${[r.pos,r.age!=null?`Age ${r.age}`:"",r.org,lvlTag(r.level),r.fv?`<span class="fv">FV ${esc(r.fv)}</span>`:"",r.eta?`ETA ${esc(r.eta)}`:""].filter(Boolean).join("<span aria-hidden='true'>·</span>")}${r.found?"":` <span>Not matched to an MLB player yet</span>`}</div>
+        ${r.blurb?`<p class="blurb">${esc(r.blurb)}</p>`:""}
+      </div>
+      <div class="line">${summaryLine(r.summary)}</div>
+    </a>`).join("") : `<div class="empty">No ranked players match those filters.</div>`}</div>`;
+}
+function emptyRankings(){
+  return `<div class="empty"><h3>Rankings coming soon</h3>
+    <p>No players are ranked yet. Add players to <code>rankings.csv</code> with a rank and full name, one per line. The next update looks each one up and fills in his level, stats and transactions.</p></div>`;
+}
+
+// ---------- Wire ----------
+function viewWire(){
+  const rankOf = Object.fromEntries((DATA.rankings||[]).filter(r=>r.id).map(r=>[r.id,r.rank]));
+  let tx = DATA.transactions || [];
+  if (wireRankedOnly) tx = tx.filter(t=>rankOf[t.playerId]);
+  const head = `<div class="sec-head">
+    <div><h2 class="sec">Transaction Wire</h2><p>Promotions, call-ups, trades and roster moves across the minors, plus every move involving a ranked prospect. Updated automatically.</p></div>
+    <div class="filters"><label class="toggle"><input type="checkbox" id="f-ranked"${wireRankedOnly?" checked":""}> Ranked prospects only</label></div>
+  </div>`;
+  if (!tx.length) return head + `<div class="empty"><h3>No moves yet</h3><p>${wireRankedOnly?"None of your ranked prospects have moved in the last 90 days.":"The wire fills in on the next update."}</p></div>`;
+  const days = {};
+  tx.slice(0,600).forEach(t=>{(days[t.date] ||= []).push(t)});
+  return head + Object.keys(days).sort().reverse().map(d=>`<section class="day"><h3>${fmtDay(d)}</h3>${days[d].map(t=>{
+    const rk = rankOf[t.playerId];
+    const kindCls = "k-"+t.type.split(/[ /]/)[0];
+    const path = (t.from&&t.to&&t.from.level&&t.to.level) ? `${esc(t.from.org||"")} ${esc(t.from.level)} → ${esc(t.to.level)}` : (t.to?.org?`${esc(t.to.org)} ${esc(t.to.level||"")}`:"");
+    const name = rk ? `<a href="#p-${t.playerId}">${esc(t.player)}</a>` : esc(t.player);
+    return `<div class="tx"><span class="kind ${kindCls}">${esc(t.type)}</span><div class="what">${rk?`<span class="rkbadge">#${rk}</span>`:""}<span class="pl">${name}</span><span class="path">${path}</span><span class="desc">${esc(t.description)}</span></div></div>`;
+  }).join("")}</section>`).join("");
+}
+
+// ---------- Player ----------
+function viewPlayer(id){
+  const p = DATA.players?.[id];
+  const r = (DATA.rankings||[]).find(x=>String(x.id)===String(id));
+  if (!p) return `<a class="back" href="#top100">← Back to rankings</a><div class="empty"><h3>Player not found</h3><p>This player isn't in the current data. He may have been removed from the rankings.</p></div>`;
+  const bt = [p.bats&&`B ${p.bats}`, p.throws&&`T ${p.throws}`].filter(Boolean).join(" / ");
+  const ladder = LEVELS.map(l=>`<div class="rung${p.levelsReached.includes(l)?" reached":""}${p.level===l?" now":""}">${l}</div>`).join("");
+  const own = p.seasons.filter(s=>s.group===(p.isPitcher?"pitching":"hitting"));
+  const table = p.isPitcher
+    ? `<thead><tr><th>Year</th><th>Lvl</th><th>Team</th><th>G</th><th>GS</th><th>IP</th><th>ERA</th><th>WHIP</th><th>SO</th><th>K%</th><th>BB%</th></tr></thead><tbody>${own.map(s=>`<tr><td>${s.season}</td><td>${s.level}</td><td>${esc(s.team)}</td><td>${s.line.g??""}</td><td>${s.line.gs??""}</td><td>${esc(s.line.ip??"")}</td><td>${esc(s.line.era??"")}</td><td>${esc(s.line.whip??"")}</td><td>${s.line.so??""}</td><td>${s.line.kPct??""}</td><td>${s.line.bbPct??""}</td></tr>`).join("")}</tbody>`
+    : `<thead><tr><th>Year</th><th>Lvl</th><th>Team</th><th>G</th><th>PA</th><th>AVG</th><th>OBP</th><th>SLG</th><th>HR</th><th>SB</th><th>K%</th><th>BB%</th></tr></thead><tbody>${own.map(s=>`<tr><td>${s.season}</td><td>${s.level}</td><td>${esc(s.team)}</td><td>${s.line.g??""}</td><td>${s.line.pa??""}</td><td>${esc(s.line.avg??"")}</td><td>${esc(s.line.obp??"")}</td><td>${esc(s.line.slg??"")}</td><td>${s.line.hr??""}</td><td>${s.line.sb??""}</td><td>${s.line.kPct??""}</td><td>${s.line.bbPct??""}</td></tr>`).join("")}</tbody>`;
+  const moves = (DATA.transactions||[]).filter(t=>String(t.playerId)===String(id));
+  return `<a class="back" href="#top100">← Back to rankings</a>
+  <article class="card">
+    <div class="card-head">
+      ${r?`<div><span class="rk">${r.rank}</span>${move(r)}</div>`:"<div></div>"}
+      <div><h2>${esc(p.name)}</h2>
+        <div class="meta">${[p.pos, p.age!=null?`Age ${p.age}`:"", bt, [p.height,p.weight?p.weight+" lb":""].filter(Boolean).join(", "), p.orgName, p.team].filter(Boolean).map(esc).join("<span aria-hidden='true'>·</span>")}</div>
+      </div>
+    </div>
+    <div class="card-body">
+      ${r?.blurb?`<p class="blurb">${esc(r.blurb)}</p>`:""}
+      <div class="facts">
+        ${r?`<div class="fact"><div class="k">Rank</div><div class="v">#${r.rank}</div></div>`:""}
+        ${r?.fv?`<div class="fact"><div class="k">Future value</div><div class="v">${esc(r.fv)}</div></div>`:""}
+        ${r?.eta?`<div class="fact"><div class="k">ETA</div><div class="v">${esc(r.eta)}</div></div>`:""}
+        <div class="fact"><div class="k">Current level</div><div class="v">${esc(p.level||"—")}</div></div>
+        ${p.debut?`<div class="fact"><div class="k">MLB debut</div><div class="v">${esc(p.debut)}</div></div>`:""}
+      </div>
+      <div><h4>Path through the system</h4><div class="ladder">${ladder}</div></div>
+      <div><h4>Season by season</h4>${own.length?`<div class="tbl"><table>${table}</table></div>`:`<div class="empty">No affiliated stats yet.</div>`}</div>
+      <div><h4>Recent moves</h4>${moves.length?moves.map(t=>`<div class="tx"><span class="kind k-${t.type.split(/[ /]/)[0]}">${esc(t.type)}</span><div class="what"><span class="pl">${fmtDay(t.date)}</span><span class="desc">${esc(t.description)}</span></div></div>`).join(""):`<p style="color:var(--muted);margin:0">No moves in the last 90 days.</p>`}</div>
+    </div>
+  </article>`;
+}
+
+// ---------- Players directory ----------
+const HCOLS = [["pa","PA"],["avg","AVG"],["obp","OBP"],["slg","SLG"],["hr","HR"],["sb","SB"],["kPct","K%"],["bbPct","BB%"]];
+const PCOLS = [["ip","IP"],["era","ERA"],["whip","WHIP"],["so","SO"],["kPct","K%"],["bbPct","BB%"]];
+const ASC_DEFAULT = new Set(["era","whip","bbPct"]);
+function numVal(k,v){ if(v==null) return null; if(k==="ip"){ const [w,f="0"]=String(v).split("."); return (+w)+(+f)/3; } return parseFloat(v); }
+function viewPlayers(){
+  if (!ALL) { loadAll(); return `<div class="sec-head"><div><h2 class="sec">Players</h2><p>Loading every minor leaguer…</p></div></div>`; }
+  const all = Object.values(ALL.players||{});
+  const head = (n)=>`<div class="sec-head">
+    <div><h2 class="sec">Players</h2><p>Every player who appeared at an affiliated minor league level in ${esc(ALL.season||DATA.season||"")}. Stats are season totals across all levels. ${n}</p></div></div>`;
+  if (!all.length) return head("") + `<div class="empty"><h3>${allFailed?"Players not loaded yet":"No players yet"}</h3><p>The full minor league player list fills in on the next data update.</p></div>`;
+  const rankOf = Object.fromEntries((DATA.rankings||[]).filter(r=>r.id).map(r=>[r.id,r.rank]));
+  const orgs = Object.keys(ALL.orgs||{}).sort();
+  const pitch = dir.kind==="P";
+  const cols = pitch ? PCOLS : HCOLS;
+  const q = dir.q.toLowerCase();
+  let list = all.filter(p=>(pitch ? p.pos==="P" : p.pos!=="P")
+    && (!dir.org || p.org===dir.org) && (!dir.level || p.level===dir.level)
+    && (!q || p.name.toLowerCase().includes(q)));
+  const k = dir.sort;
+  list.sort((a,b)=>{
+    if (k==="name") return dir.desc ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name);
+    if (k==="age") return dir.desc ? (b.age??0)-(a.age??0) : (a.age??99)-(b.age??99);
+    const va=numVal(k,lineOf(a)?.[k]), vb=numVal(k,lineOf(b)?.[k]);
+    if (va==null && vb==null) return 0; if (va==null) return 1; if (vb==null) return -1;
+    return dir.desc ? vb-va : va-vb;
+  });
+  const total = list.length;
+  list = list.slice(0, dir.show);
+  const th = (key,label)=>`<th${dir.sort===key?` aria-sort="${dir.desc?"descending":"ascending"}"`:""}><button data-sort="${key}">${label}${dir.sort===key?(dir.desc?" ▼":" ▲"):""}</button></th>`;
+  const fmt = (key,v)=> v==null ? "" : (key==="kPct"||key==="bbPct") ? v.toFixed ? v.toFixed(1) : v : esc(v);
+  return head("") + `
+  <div class="filters" style="margin-bottom:12px">
+    <input id="d-q" type="search" placeholder="Search any minor leaguer" value="${esc(dir.q)}" aria-label="Search players">
+    <select id="d-kind" aria-label="Hitters or pitchers"><option value="H"${!pitch?" selected":""}>Hitters</option><option value="P"${pitch?" selected":""}>Pitchers</option></select>
+    <select id="d-org" aria-label="Organization"><option value="">All organizations</option>${orgs.map(o=>`<option value="${esc(o)}"${o===dir.org?" selected":""}>${esc(ALL.orgs[o])}</option>`).join("")}</select>
+    <select id="d-level" aria-label="Level"><option value="">All levels</option>${LEVELS.filter(l=>l!=="MLB").map(l=>`<option${l===dir.level?" selected":""}>${l}</option>`).join("")}</select>
+  </div>
+  <div class="tbl"><table class="dir-tbl"><thead><tr>${th("name","Player")}${th("age","Age")}<th>Pos</th><th>Org</th><th>Lvl</th>${cols.map(([k2,l])=>th(k2,l)).join("")}</tr></thead><tbody>
+  ${list.map(p=>{ const L=lineOf(p)||{}; const rk=rankOf[p.id]; return `<tr><td>${rk?`<span class="rkbadge">#${rk}</span>`:""}<a href="#p-${p.id}">${esc(p.name)}</a></td><td>${p.age??""}</td><td>${esc(p.pos)}</td><td>${esc(p.org)}</td><td>${esc(p.level||"")}</td>${cols.map(([k2])=>`<td>${fmt(k2,L[k2])}</td>`).join("")}</tr>`; }).join("") || `<tr><td colspan="${5+cols.length}">No players match those filters.</td></tr>`}
+  </tbody></table></div>
+  <div class="more"><span>Showing ${Math.min(dir.show,total).toLocaleString()} of ${total.toLocaleString()}</span>${total>dir.show?`<button id="d-more">Show 100 more</button>`:""}</div>`;
+}
+
+// Player page for someone who isn't ranked: built from the full player list
+function viewIndexPlayer(id){
+  if (!ALL) { loadAll(); return `<a class="back" href="#players">← Back to players</a><p style="color:var(--muted)">Loading player…</p>`; }
+  const p = ALL.players?.[id];
+  if (!p) return `<a class="back" href="#players">← Back to players</a><div class="empty"><h3>Player not found</h3><p>He isn't in this season's minor league data.</p></div>`;
+  const pitch = p.pos==="P";
+  const bt = [p.bats&&`B ${p.bats}`, p.throws&&`T ${p.throws}`].filter(Boolean).join(" / ");
+  const rows = p.byLevel.filter(x=>x.group===(pitch?"pitching":"hitting"));
+  const table = pitch
+    ? `<thead><tr><th>Year</th><th>Lvl</th><th>Team</th><th>G</th><th>GS</th><th>IP</th><th>ERA</th><th>WHIP</th><th>SO</th><th>K%</th><th>BB%</th></tr></thead><tbody>${rows.map(s=>`<tr><td>${ALL.season}</td><td>${s.level}</td><td>${esc(s.team)}</td><td>${s.line.g??""}</td><td>${s.line.gs??""}</td><td>${esc(s.line.ip??"")}</td><td>${esc(s.line.era??"")}</td><td>${esc(s.line.whip??"")}</td><td>${s.line.so??""}</td><td>${s.line.kPct??""}</td><td>${s.line.bbPct??""}</td></tr>`).join("")}</tbody>`
+    : `<thead><tr><th>Year</th><th>Lvl</th><th>Team</th><th>G</th><th>PA</th><th>AVG</th><th>OBP</th><th>SLG</th><th>HR</th><th>SB</th><th>K%</th><th>BB%</th></tr></thead><tbody>${rows.map(s=>`<tr><td>${ALL.season}</td><td>${s.level}</td><td>${esc(s.team)}</td><td>${s.line.g??""}</td><td>${s.line.pa??""}</td><td>${esc(s.line.avg??"")}</td><td>${esc(s.line.obp??"")}</td><td>${esc(s.line.slg??"")}</td><td>${s.line.hr??""}</td><td>${s.line.sb??""}</td><td>${s.line.kPct??""}</td><td>${s.line.bbPct??""}</td></tr>`).join("")}</tbody>`;
+  const reached = rows.map(r=>r.level);
+  const moves = (DATA.transactions||[]).filter(t=>String(t.playerId)===String(id));
+  return `<a class="back" href="#players">← Back to players</a>
+  <article class="card">
+    <div class="card-head"><div></div><div><h2>${esc(p.name)}</h2>
+      <div class="meta">${[p.pos, p.age!=null?`Age ${p.age}`:"", bt, ALL.orgs?.[p.org]||p.org, p.team].filter(Boolean).map(esc).join("<span aria-hidden='true'>·</span>")}</div></div></div>
+    <div class="card-body">
+      <div class="facts"><div class="fact"><div class="k">Current level</div><div class="v">${esc(p.level||"—")}</div></div><div class="fact"><div class="k">Ranked</div><div class="v">No</div></div></div>
+      <div><h4>${esc(ALL.season)} levels</h4><div class="ladder">${LEVELS.map(l=>`<div class="rung${reached.includes(l)?" reached":""}${p.level===l?" now":""}">${l}</div>`).join("")}</div></div>
+      <div><h4>${esc(ALL.season)} season</h4><div class="tbl"><table>${table}</table></div>
+        <p style="color:var(--muted);font-size:.85rem;margin:8px 0 0">Full career stats are kept for ranked prospects. This page shows the current season.</p></div>
+      ${moves.length?`<div><h4>Recent moves</h4>${moves.map(t=>`<div class="tx"><span class="kind k-${t.type.split(/[ /]/)[0]}">${esc(t.type)}</span><div class="what"><span class="pl">${fmtDay(t.date)}</span><span class="desc">${esc(t.description)}</span></div></div>`).join("")}</div>`:""}
+    </div>
+  </article>`;
+}
+
+// ---------- router ----------
+function render(){
+  const h = location.hash.slice(1) || "top100";
+  let html, nav = h;
+  if (h.startsWith("p-")) {
+    const pid = h.slice(2);
+    if (DATA.players?.[pid]) { html = viewPlayer(pid); nav = "top100"; }
+    else { html = viewIndexPlayer(pid); nav = "players"; }
+  }
+  else if (h === "wire") html = viewWire();
+  else if (h === "players") html = viewPlayers();
+  else { html = viewTop(); nav = "top100"; }
+  $("#main").innerHTML = html;
+  document.querySelectorAll("[data-nav]").forEach(a=>{ if(a.dataset.nav===nav) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
+  bind();
+}
+function bind(){
+  const q=$("#f-q"), o=$("#f-org"), k=$("#f-kind"), rk=$("#f-ranked");
+  if (q) q.addEventListener("input", e=>{ filt.q=e.target.value; const pos=e.target.selectionStart; render(); const n=$("#f-q"); n.focus(); n.setSelectionRange(pos,pos); });
+  if (o) o.addEventListener("change", e=>{ filt.org=e.target.value; render(); });
+  if (k) k.addEventListener("change", e=>{ filt.kind=e.target.value; render(); });
+  if (rk) rk.addEventListener("change", e=>{ wireRankedOnly=e.target.checked; render(); });
+  const dq=$("#d-q");
+  if (dq) dq.addEventListener("input", e=>{ dir.q=e.target.value; dir.show=100; const pos=e.target.selectionStart; render(); const n=$("#d-q"); n.focus(); n.setSelectionRange(pos,pos); });
+  const dk=$("#d-kind");
+  if (dk) dk.addEventListener("change", e=>{ dir.kind=e.target.value; dir.sort=dir.kind==="P"?"ip":"pa"; dir.desc=true; dir.show=100; render(); });
+  const dorg=$("#d-org"); if (dorg) dorg.addEventListener("change", e=>{ dir.org=e.target.value; dir.show=100; render(); });
+  const dl=$("#d-level"); if (dl) dl.addEventListener("change", e=>{ dir.level=e.target.value; dir.show=100; render(); });
+  const dm=$("#d-more"); if (dm) dm.addEventListener("click", ()=>{ dir.show+=100; render(); });
+  document.querySelectorAll("[data-sort]").forEach(b=>b.addEventListener("click", ()=>{
+    const key=b.dataset.sort;
+    if (dir.sort===key) dir.desc=!dir.desc; else { dir.sort=key; dir.desc = key==="name" ? false : !ASC_DEFAULT.has(key); }
+    render();
+  }));
+}
+window.addEventListener("hashchange", ()=>{ render(); window.scrollTo(0,0); });
+
+fetch("data/site.json", {cache:"no-cache"})
+  .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
+  .then(d=>{
+    DATA = d;
+    const up = new Date(d.updated);
+    $("#dl-left").textContent = `Updated ${up.toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}`;
+    $("#dl-right").textContent = `${d.season} season · ${(d.rankings||[]).length} ranked · ${(d.transactions||[]).length} moves on the wire`;
+    if (d.preview) { const n=$("#preview-note"); n.textContent=d.preview; n.hidden=false; }
+    render();
+  })
+  .catch(()=>{
+    DATA = {rankings:[],players:{},transactions:[]};
+    $("#dl-left").textContent = "Waiting for the first data update";
+    render();
+  });
+})();
+</script>
+</body>
+</html>
