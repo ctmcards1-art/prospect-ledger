@@ -253,7 +253,13 @@ async function loadPlayer(id, teams) {
     }
   }
   seasons.sort((a, b) => a.season - b.season || LEVEL_ORDER.indexOf(a.level) - LEVEL_ORDER.indexOf(b.level));
-  const cur = p.currentTeam ? teams[p.currentTeam.id] : null;
+  // If he's currently somewhere outside the affiliated minors (fall/winter ball, etc.), fall back to his last affiliated team
+  let cur = p.currentTeam ? teams[p.currentTeam.id] : null;
+  if (!cur || !cur.level) {
+    const last = seasons[seasons.length - 1];
+    const lastTeam = last && Object.values(teams).find((t) => t.name === last.team);
+    if (lastTeam) cur = lastTeam;
+  }
   return {
     id: p.id, name: p.fullName, pos, isPitcher, isTwoWay,
     age: p.currentAge ?? null, birthDate: p.birthDate || null,
