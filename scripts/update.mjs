@@ -379,7 +379,7 @@ async function main() {
     if (!id) {
       try { id = await resolveId(r.name, idCache, nameIndex); } catch (e) { warn(`Lookup failed for ${r.name}: ${e.message}`); }
     }
-    ranked.push({ rank, name: r.name, id, fv: r.fv || "", eta: r.eta || "", blurb: r.blurb || "" });
+    ranked.push({ rank, name: r.name, id, fv: r.fv || "", eta: r.eta || "", blurb: r.blurb || "", score: r.score || "", scoreDetail: r.score_detail || "" });
   }
   ranked.sort((a, b) => a.rank - b.rank);
   log(`${ranked.length} ranked players in ${RANKINGS_FILE}`);
@@ -416,7 +416,7 @@ async function main() {
   const rankings = ranked.map((r) => {
     const p = players[r.id];
     return {
-      rank: r.rank, id: r.id, name: p?.name || r.name, fv: r.fv, eta: r.eta, blurb: r.blurb,
+      rank: r.rank, id: r.id, name: p?.name || r.name, fv: r.fv, eta: r.eta, blurb: r.blurb, score: r.score, scoreDetail: r.scoreDetail,
       prevRank: prevSnap ? (prevSnap[r.id] ?? null) : undefined,
       pos: p?.pos || "", age: p?.age ?? null, org: p?.org || "", orgName: p?.orgName || "", level: p?.level || null,
       summary: p ? (seasonSummary(p, season) || seasonSummary(p, season - 1)) : null,
