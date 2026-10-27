@@ -1,110 +1,111 @@
 # PROSPECT LEDGER RANKINGS. Edit this file to update the site.
 # One player per line, in any order. Lines starting with # are ignored.
-# rank   = your ranking number (required)
+# rank   = ranking number (required)
 # name   = the player's full name as MLB lists it (required)
-# mlb_id = optional; only needed if two players share a name (the number in their MLB.com player URL)
+# mlb_id = the number in the player's MLB.com URL (optional; picks the right player when names repeat)
 # fv     = optional Future Value grade on the 20-80 scale, e.g. 60
 # eta    = optional year you expect him in the majors, e.g. 2027
 # blurb  = optional scouting write-up; wrap it in "double quotes" if it contains commas
+# score / score_detail = the ranking formula's output (see the How the rankings work page)
 #
-rank,name,mlb_id,fv,eta,blurb
-1,Franklin Arias,,,,
-2,Eli Willits,,,,
-3,Jesus Made,,,,
-4,Leo De Vries,,,,
-5,Josuar Gonzalez,,,,
-6,Rainiel Rodriguez,,,,
-7,Ryan Sloan,,,,
-8,Sebastian Walcott,,,,
-9,Theo Gillen,,,,
-10,JoJo Parker,,,,
-11,Emil Morales,,,,
-12,Josiah Hartshorn,,,,
-13,Eric Hartman,,,,
-14,Ethan Holliday,,,,
-15,Mike Sirota,,,,
-16,Walker Jenkins,805805,,,
-17,Ethan Salas,806956,,,
-18,Ralphy Velazquez,806252,,,
-19,Caden Bodine,805207,,,
-20,Jefferson Rojas,800473,,,
-21,Angel Genao,694197,,,
-22,Josue De Paula,800543,,,
-23,Kade Anderson,807739,,,
-24,Michael Arroyo,703197,,,
-25,Caleb Bonemer,815352,,,
-26,Jhonny Level,815929,,,
-27,Lazaro Montes,703155,,,
-28,Josh Adamczewski,815304,,,
-29,Xavier Isaac,800060,,,
-30,Justin Gonzales,821100,,,
-31,Joshua Báez,695491,,,
-32,Alfredo Duno,806957,,,
-33,Arjun Nimmala,805796,,,
-34,Devin Taylor,805127,,,
-35,Zyhir Hope,814307,,,
-36,Aron Estrada,800406,,,
-37,Anthony Eyanson,809254,,,
-38,Eduardo Quintero,808234,,,
-39,Demetrio Crisantes,702679,,,
-40,Thomas White,806258,,,
-41,Manuel Pena,694211,,,
-42,Luis Peña,821270,,,
-43,Tate Southisene,816111,,,
-44,James Tibbs III,696486,,,
-45,Luis Hernández,836582,,,
-46,Seth Hernandez,815825,,,
-47,Christian Zazueta,800537,,,
-48,Emmanuel Rodriguez,691181,,,
-49,Nelson Rada,703185,,,
-50,Robby Snelling,702281,,,
-51,Carlos Virahonda,808024,,,
-52,Leo Bernal,699024,,,
-53,Andrew Fischer,702652,,,
-54,Braylon Payne,815520,,,
-55,Felnin Celesten,806958,,,
-56,Charlie Condon,809707,,,
-57,Cooper Ingle,694876,,,
-58,Francisco Renteria,836353,,,
-59,Braylon Doughty,815785,,,
-60,Jett Williams,702518,,,
-61,Josue Briceño,800522,,,
-62,Edward Florentino,821273,,,
-63,Gage Wood,805906,,,
-64,Ramon Marquez,827408,,,
-65,Kaelen Culpepper,701785,,,
-66,Jarlin Susana,703186,,,
-67,Jamie Arnold,701364,,,
-68,Tyler Bremner,803285,,,
-69,Cam Caminiti,807284,,,
-70,Hagen Smith,696146,,,
-71,Carlos Lagrange,801739,,,
-72,Eric Booth Jr.,835727,,,
-73,Karson Milbrandt,703596,,,
-74,Elmer Rodríguez,695684,,,
-75,Grady Emerson,815690,,,
-76,Vahn Lackey,822518,,,
-77,Jonah Tong,804636,,,
-78,Harry Ford,695670,,,
-79,Jonny Farmelo,806071,,,
-80,Jurrangelo Cijntje,701388,,,
-81,Aidan Miller,805795,,,
-82,Roch Cholowsky,800604,,,
-83,Jacob Lombard,813075,,,
-84,Steele Hall,829162,,,
-85,Nate George,825582,,,
-86,Dax Kilby,828076,,,
-87,Liam Doyle,824604,,,
-88,Drew Burress,806039,,,
-89,Aiva Arquette,804109,,,
-90,Bryce Rainer,800614,,,
-91,Blake Mitchell,805810,,,
-92,Eduardo Tait,806953,,,
-93,Billy Carlson,815814,,,
-94,Jaxon Wiggins,694393,,,
-95,Hunter Barco,682995,,,
-96,Brody Hopkins,811315,,,
-97,Jackson Flora,814176,,,
-98,River Ryan,689981,,,
-99,Kyson Witherspoon,804817,,,
-100,Kruz Schoolcraft,828244,,,
+rank,name,mlb_id,fv,eta,blurb,score,score_detail
+1,Franklin Arias,808265,,,,8.38,Level 2.40 (Triple-A) · Age +2.80 · Production +1.98 · Consensus +1.20 (August list)
+2,Walker Jenkins,805805,,,,7.49,Level 2.40 (Triple-A) · Age +2.10 · Production +1.79 · Consensus +1.20 (August list)
+3,Eli Willits,816113,,,,7.45,Level 1.80 (Double-A) · Age +3.15 · Production +1.30 · Consensus +1.20 (August list)
+4,Ethan Salas,806956,,,,7.35,Level 2.40 (Triple-A) · Age +2.80 · Production +0.95 · Consensus +1.20 (August list)
+5,Sebastian Walcott,806964,,,,7.27,Level 2.40 (Triple-A) · Age +2.80 · Production +0.87 · Consensus +1.20 (August list)
+6,Ralphy Velazquez,806252,,,,7.25,Level 2.40 (Triple-A) · Age +2.10 · Production +1.55 · Consensus +1.20 (August list)
+7,Josiah Hartshorn,815824,,,,7.20,Level 1.80 (Double-A) · Age +2.45 · Production +1.75 · Consensus +1.20 (August list)
+8,Caden Bodine,805207,,,,7.03,Level 2.40 (Triple-A) · Age +1.40 · Production +2.03 · Consensus +1.20 (August list)
+9,Rainiel Rodriguez,823787,,,,6.91,Level 1.80 (Double-A) · Age +2.45 · Production +2.06 · Consensus +0.60 (June list)
+10,Jefferson Rojas,800473,,,,6.57,Level 2.40 (Triple-A) · Age +2.10 · Production +0.87 · Consensus +1.20 (August list)
+11,Mike Sirota,701527,,,,6.56,Level 2.40 (Triple-A) · Age +0.70 · Production +2.26 · Consensus +1.20 (August list)
+12,Angel Genao,694197,,,,6.40,Level 2.40 (Triple-A) · Age +1.40 · Production +1.40 · Consensus +1.20 (August list)
+13,Josue De Paula,800543,,,,6.07,Level 1.80 (Double-A) · Age +1.05 · Production +2.02 · Consensus +1.20 (August list)
+14,Jesús Made,815908,,,,5.96,Level 1.80 (Double-A) · Age +2.45 · Production +0.51 · Consensus +1.20 (August list)
+15,Kade Anderson,807739,,,,5.95,Level 1.80 (Double-A) · Age +0.35 · Production +2.60 · Consensus +1.20 (August list)
+16,Theo Gillen,815394,,,,5.93,Level 1.80 (Double-A) · Age +1.05 · Production +1.88 · Consensus +1.20 (August list)
+17,Ryan Sloan,815549,,,,5.72,Level 1.80 (Double-A) · Age +1.75 · Production +0.97 · Consensus +1.20 (August list)
+18,Leo De Vries,815888,,,,5.52,Level 1.80 (Double-A) · Age +1.75 · Production +0.77 · Consensus +1.20 (August list)
+19,Michael Arroyo,703197,,,,5.49,Level 2.40 (Triple-A) · Age +2.10 · Production +0.79 · Consensus +0.20 (preseason list)
+20,Caleb Bonemer,815352,,,,5.45,Level 1.80 (Double-A) · Age +1.05 · Production +1.40 · Consensus +1.20 (August list)
+21,Jhonny Level,815929,,,,5.34,Level 1.20 (High-A) · Age +1.75 · Production +1.19 · Consensus +1.20 (August list)
+22,Lazaro Montes,703155,,,,5.26,Level 2.40 (Triple-A) · Age +1.40 · Production +1.26 · Consensus +0.20 (preseason list)
+23,Josh Adamczewski,815304,,,,5.20,Level 1.80 (Double-A) · Age +1.05 · Production +1.75 · Consensus +0.60 (June list)
+24,Xavier Isaac,800060,,,,5.19,Level 2.40 (Triple-A) · Age +1.40 · Production +1.39 · Consensus +0.00 (not on a list)
+25,Eric Hartman,807080,,,,5.15,Level 1.80 (Double-A) · Age +1.75 · Production +0.40 · Consensus +1.20 (August list)
+26,Justin Gonzales,821100,,,,5.14,Level 1.80 (Double-A) · Age +2.45 · Production +0.89 · Consensus +0.00 (not on a list)
+27,Joshua Báez,695491,,,,5.13,Level 2.40 (Triple-A) · Age +0.70 · Production +0.83 · Consensus +1.20 (August list)
+28,Alfredo Duno,806957,,,,5.09,Level 1.80 (Double-A) · Age +1.75 · Production +1.34 · Consensus +0.20 (preseason list)
+29,Arjun Nimmala,805796,,,,5.06,Level 1.80 (Double-A) · Age +1.05 · Production +1.01 · Consensus +1.20 (August list)
+30,Devin Taylor,805127,,,,5.02,Level 2.40 (Triple-A) · Age +1.40 · Production +1.22 · Consensus +0.00 (not on a list)
+31,Zyhir Hope,814307,,,,5.01,Level 1.80 (Double-A) · Age +1.05 · Production +0.96 · Consensus +1.20 (August list)
+32,Aron Estrada,800406,,,,4.97,Level 2.40 (Triple-A) · Age +2.10 · Production +0.47 · Consensus +0.00 (not on a list)
+33,Anthony Eyanson,809254,,,,4.96,Level 1.80 (Double-A) · Age +0.35 · Production +1.61 · Consensus +1.20 (August list)
+34,Eduardo Quintero,808234,,,,4.93,Level 1.80 (Double-A) · Age +1.05 · Production +1.88 · Consensus +0.20 (preseason list)
+35,Demetrio Crisantes,702679,,,,4.83,Level 2.40 (Triple-A) · Age +1.40 · Production +1.03 · Consensus +0.00 (not on a list)
+36,Leo Bernal,699024,,,,4.80,Level 2.40 (Triple-A) · Age +1.40 · Production +0.80 · Consensus +0.20 (preseason list)
+37,Thomas White,806258,,,,4.80,Level 2.40 (Triple-A) · Age +1.40 · Production −0.20 · Consensus +1.20 (August list)
+38,Emil Morales,815896,,,,4.79,Level 1.20 (High-A) · Age +1.05 · Production +1.34 · Consensus +1.20 (August list)
+39,Manuel Pena,694211,,,,4.78,Level 2.40 (Triple-A) · Age +1.40 · Production +0.98 · Consensus +0.00 (not on a list)
+40,Luis Peña,821270,,,,4.78,Level 1.80 (Double-A) · Age +2.45 · Production +0.33 · Consensus +0.20 (preseason list)
+41,Tate Southisene,816111,,,,4.75,Level 1.80 (Double-A) · Age +1.75 · Production +1.20 · Consensus +0.00 (not on a list)
+42,James Tibbs III,696486,,,,4.75,Level 2.40 (Triple-A) · Age +0.00 · Production +1.75 · Consensus +0.60 (June list)
+43,Luis Hernández,836582,,,,4.72,Level 0.60 (Single-A) · Age +2.45 · Production +0.47 · Consensus +1.20 (August list)
+44,Seth Hernandez,815825,,,,4.69,Level 1.20 (High-A) · Age +1.05 · Production +1.24 · Consensus +1.20 (August list)
+45,Christian Zazueta,800537,,,,4.68,Level 1.80 (Double-A) · Age +0.35 · Production +1.33 · Consensus +1.20 (August list)
+46,Emmanuel Rodriguez,691181,,,,4.64,Level 2.40 (Triple-A) · Age +0.70 · Production +0.94 · Consensus +0.60 (June list)
+47,Nelson Rada,703185,,,,4.64,Level 2.40 (Triple-A) · Age +2.10 · Production +0.14 · Consensus +0.00 (not on a list)
+48,Robby Snelling,702281,,,,4.64,Level 2.40 (Triple-A) · Age +1.40 · Production +0.24 · Consensus +0.60 (June list)
+49,Carlos Virahonda,808024,,,,4.63,Level 1.80 (Double-A) · Age +1.75 · Production +1.08 · Consensus +0.00 (not on a list)
+50,Andrew Fischer,702652,,,,4.57,Level 1.80 (Double-A) · Age +0.35 · Production +2.42 · Consensus +0.00 (not on a list)
+51,Braylon Payne,815520,,,,4.57,Level 1.80 (Double-A) · Age +1.75 · Production +1.02 · Consensus +0.00 (not on a list)
+52,Felnin Celesten,806958,,,,4.57,Level 1.80 (Double-A) · Age +1.05 · Production +0.52 · Consensus +1.20 (August list)
+53,Charlie Condon,809707,,,,4.54,Level 2.40 (Triple-A) · Age +0.70 · Production +1.24 · Consensus +0.20 (preseason list)
+54,Hendry Mendez,694230,,,,4.53,Level 2.40 (Triple-A) · Age +1.40 · Production +0.73 · Consensus +0.00 (not on a list)
+55,Cooper Ingle,694876,,,,4.51,Level 2.40 (Triple-A) · Age +0.00 · Production +1.91 · Consensus +0.20 (preseason list)
+56,Francisco Renteria,836353,,,,4.51,Level 0.00 (Rookie) · Age +1.75 · Production +2.16 · Consensus +0.60 (June list)
+57,Braylon Doughty,815785,,,,4.43,Level 1.80 (Double-A) · Age +1.75 · Production +0.28 · Consensus +0.60 (June list)
+58,Eric Bitonti,800724,,,,4.41,Level 1.80 (Double-A) · Age +1.75 · Production +0.86 · Consensus +0.00 (not on a list)
+59,Josuar Gonzalez,829034,,,,4.37,Level 0.60 (Single-A) · Age +1.05 · Production +1.52 · Consensus +1.20 (August list)
+60,Jett Williams,702518,,,,4.32,Level 2.40 (Triple-A) · Age +1.40 · Production −0.08 · Consensus +0.60 (June list)
+61,Rosman Verdugo,698916,,,,4.28,Level 2.40 (Triple-A) · Age +2.10 · Production −0.22 · Consensus +0.00 (not on a list)
+62,Josue Briceño,800522,,,,4.28,Level 2.40 (Triple-A) · Age +1.40 · Production +0.28 · Consensus +0.20 (preseason list)
+63,Edward Florentino,821273,,,,4.24,Level 1.20 (High-A) · Age +1.75 · Production +1.09 · Consensus +0.20 (preseason list)
+64,Jesús Báez,800305,,,,4.23,Level 1.80 (Double-A) · Age +1.05 · Production +1.38 · Consensus +0.00 (not on a list)
+65,Gage Wood,805906,,,,4.16,Level 1.80 (Double-A) · Age +0.35 · Production +0.81 · Consensus +1.20 (August list)
+66,Ramon Marquez,827408,,,,4.13,Level 1.20 (High-A) · Age +0.35 · Production +1.38 · Consensus +1.20 (August list)
+67,Charles Davalan,804560,,,,4.13,Level 1.80 (Double-A) · Age +0.35 · Production +1.98 · Consensus +0.00 (not on a list)
+68,Kaelen Culpepper,701785,,,,4.12,Level 2.40 (Triple-A) · Age +0.70 · Production +0.82 · Consensus +0.20 (preseason list)
+69,Juan Matheus,801276,,,,4.08,Level 2.40 (Triple-A) · Age +1.40 · Production +0.28 · Consensus +0.00 (not on a list)
+70,Davis Polo,805175,,,,4.04,Level 2.40 (Triple-A) · Age +1.40 · Production +0.24 · Consensus +0.00 (not on a list)
+71,Murf Gray,809092,,,,4.04,Level 1.80 (Double-A) · Age +0.35 · Production +1.89 · Consensus +0.00 (not on a list)
+72,Yhoiker Fajardo,823369,,,,4.02,Level 1.80 (Double-A) · Age +1.75 · Production +0.47 · Consensus +0.00 (not on a list)
+73,Bryan Rincon,804858,,,,3.93,Level 1.80 (Double-A) · Age +0.35 · Production +1.78 · Consensus +0.00 (not on a list)
+74,Anthony Huezo,805953,,,,3.90,Level 1.80 (Double-A) · Age +1.75 · Production +0.35 · Consensus +0.00 (not on a list)
+75,Josiah Ragsdale,828824,,,,3.89,Level 1.80 (Double-A) · Age +0.35 · Production +1.74 · Consensus +0.00 (not on a list)
+76,Gabriel Gonzalez,694224,,,,3.87,Level 2.40 (Triple-A) · Age +1.40 · Production +0.07 · Consensus +0.00 (not on a list)
+77,Jarlin Susana,703186,,,,3.86,Level 2.40 (Triple-A) · Age +1.40 · Production −0.14 · Consensus +0.20 (preseason list)
+78,Jamie Arnold,701364,,,,3.83,Level 2.40 (Triple-A) · Age +1.40 · Production −0.17 · Consensus +0.20 (preseason list)
+79,Isaac Lyon,805214,,,,3.79,Level 2.40 (Triple-A) · Age +1.40 · Production −0.01 · Consensus +0.00 (not on a list)
+80,Keiner Delgado,700731,,,,3.72,Level 2.40 (Triple-A) · Age +1.40 · Production −0.08 · Consensus +0.00 (not on a list)
+81,Tyler Bremner,803285,,,,3.71,Level 1.80 (Double-A) · Age +0.35 · Production +0.36 · Consensus +1.20 (August list)
+82,John Gil,808535,,,,3.69,Level 1.80 (Double-A) · Age +1.75 · Production +0.14 · Consensus +0.00 (not on a list)
+83,Johnny King,803516,,,,3.65,Level 1.80 (Double-A) · Age +1.75 · Production +0.10 · Consensus +0.00 (not on a list)
+84,Cam Caminiti,807284,,,,3.60,Level 1.80 (Double-A) · Age +1.75 · Production −0.15 · Consensus +0.20 (preseason list)
+85,Roynier Hernandez,800281,,,,3.58,Level 1.80 (Double-A) · Age +1.05 · Production +0.73 · Consensus +0.00 (not on a list)
+86,Hagen Smith,696146,,,,3.58,Level 2.40 (Triple-A) · Age +0.70 · Production −0.12 · Consensus +0.60 (June list)
+87,Carlos Lagrange,801739,,,,3.54,Level 2.40 (Triple-A) · Age +0.70 · Production −0.16 · Consensus +0.60 (June list)
+88,Eric Booth Jr.,835727,,,,3.53,Level 0.60 (Single-A) · Age +1.75 · Production −0.02 · Consensus +1.20 (August list)
+89,Karson Milbrandt,703596,,,,3.52,Level 2.40 (Triple-A) · Age +1.40 · Production −0.88 · Consensus +0.60 (June list)
+90,JoJo Parker,828098,,,,3.50,Level 1.20 (High-A) · Age +1.05 · Production +1.05 · Consensus +0.20 (preseason list)
+91,Cristofer Torin,800198,,,,3.48,Level 1.80 (Double-A) · Age +1.05 · Production +0.63 · Consensus +0.00 (not on a list)
+92,Nolan Schubart,702278,,,,3.47,Level 1.80 (Double-A) · Age +0.35 · Production +1.32 · Consensus +0.00 (not on a list)
+93,Michael Forret,702650,,,,3.47,Level 2.40 (Triple-A) · Age +1.40 · Production −0.33 · Consensus +0.00 (not on a list)
+94,Gary Gill Hill,804541,,,,3.46,Level 2.40 (Triple-A) · Age +1.40 · Production −0.34 · Consensus +0.00 (not on a list)
+95,Alfonsin Rosario,806210,,,,3.45,Level 2.40 (Triple-A) · Age +1.40 · Production −0.35 · Consensus +0.00 (not on a list)
+96,Daniel Dickinson,823658,,,,3.45,Level 1.80 (Double-A) · Age +0.35 · Production +1.30 · Consensus +0.00 (not on a list)
+97,Abraham Parra,811600,,,,3.45,Level 2.40 (Triple-A) · Age +2.80 · Production −1.75 · Consensus +0.00 (not on a list)
+98,Carlos Sanchez,800176,,,,3.42,Level 1.80 (Double-A) · Age +1.05 · Production +0.57 · Consensus +0.00 (not on a list)
+99,Kane Kepley,823807,,,,3.42,Level 1.80 (Double-A) · Age +0.35 · Production +1.27 · Consensus +0.00 (not on a list)
+100,Elmer Rodríguez,695684,,,,3.42,Level 2.40 (Triple-A) · Age +0.70 · Production −0.28 · Consensus +0.60 (June list)
