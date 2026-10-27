@@ -129,6 +129,13 @@ tr:last-child td{border-bottom:0}
 .dir-tbl th:nth-child(-n+5),.dir-tbl td:nth-child(-n+5){text-align:left}
 .more{margin-top:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-family:var(--f-data);font-size:.78rem;color:var(--muted)}
 .more button{font-family:var(--f-display);font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--pine);color:var(--pine-ink);border:0;border-radius:3px;padding:7px 14px;cursor:pointer}
+.method{max-width:68ch}
+.method .lede{font-size:1.1rem;margin:10px 0 18px}
+.method h3{font-family:var(--f-display);font-weight:800;font-size:1.3rem;letter-spacing:.04em;text-transform:uppercase;margin:26px 0 6px}
+.method ol,.method ul{padding-left:1.3em;display:flex;flex-direction:column;gap:10px}
+.method .example{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--pine);border-radius:4px;padding:12px 16px;margin-top:14px}
+.score-detail{font-family:var(--f-data);font-size:.85rem;margin:0}
+.sec-head p a{color:var(--ink);text-underline-offset:3px}
 .empty{background:var(--surface);border:1px dashed var(--line);border-radius:4px;padding:28px 24px;color:var(--muted);max-width:70ch}
 .empty h3{font-family:var(--f-display);font-weight:800;text-transform:uppercase;color:var(--ink);margin:0 0 6px;font-size:1.4rem}
 .empty code{font-family:var(--f-data);font-size:.85em;background:var(--sunk);padding:1px 5px;border-radius:3px}
@@ -155,7 +162,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 32px;font-family:var(
   <div id="preview-note" class="preview" hidden></div>
 </header>
 <main class="wrap" id="main" tabindex="-1"></main>
-<footer class="wrap">Stats and transactions from MLB's public Stats API, refreshed automatically. Rankings and write-ups are the site's own.</footer>
+<footer class="wrap">Stats and transactions from MLB's public Stats API, refreshed automatically. Rankings are the site's own, built with a <a href="#method">published formula</a>; MLB Pipeline's 2026 lists are used to decide which players are considered.</footer>
 
 <script>
 (function(){
@@ -210,7 +217,7 @@ function viewTop(){
     && (!q || r.name.toLowerCase().includes(q) || (r.orgName||"").toLowerCase().includes(q)));
   const top = R.length>=100 ? "Top 100" : `Top ${R.length}`;
   return `<div class="sec-head">
-    <div><h2 class="sec">${top} Prospects</h2><p>Our rankings, with each player's current level and latest season line. Arrows show movement since the last update.</p></div>
+    <div><h2 class="sec">${top} Prospects</h2><p>Ranked by a published formula built on level, age and 2026 production. <a href="#method">How the rankings work</a>. Arrows show movement since the last update.</p></div>
     <div class="filters">
       <input id="f-q" type="search" placeholder="Search player or team" value="${esc(filt.q)}" aria-label="Search">
       <select id="f-org" aria-label="Organization"><option value="">All organizations</option>${orgs.map(o=>`<option${o===filt.org?" selected":""}>${esc(o)}</option>`).join("")}</select>
@@ -222,7 +229,7 @@ function viewTop(){
       <div><span class="rk">${r.rank}</span>${move(r)}</div>
       <div class="who">
         <div class="nm">${esc(r.name)}</div>
-        <div class="meta">${[r.pos,r.age!=null?`Age ${r.age}`:"",r.org,lvlTag(r.level),r.fv?`<span class="fv">FV ${esc(r.fv)}</span>`:"",r.eta?`ETA ${esc(r.eta)}`:""].filter(Boolean).join("<span aria-hidden='true'>·</span>")}${r.found?"":` <span>Not matched to an MLB player yet</span>`}</div>
+        <div class="meta">${[r.pos,r.age!=null?`Age ${r.age}`:"",r.org,lvlTag(r.level),r.fv?`<span class="fv">FV ${esc(r.fv)}</span>`:"",r.eta?`ETA ${esc(r.eta)}`:"",r.score?`Score ${esc(r.score)}`:""].filter(Boolean).join("<span aria-hidden='true'>·</span>")}${r.found?"":` <span>Not matched to an MLB player yet</span>`}</div>
         ${r.blurb?`<p class="blurb">${esc(r.blurb)}</p>`:""}
       </div>
       <div class="line">${summaryLine(r.summary)}</div>
@@ -278,11 +285,13 @@ function viewPlayer(id){
       ${r?.blurb?`<p class="blurb">${esc(r.blurb)}</p>`:""}
       <div class="facts">
         ${r?`<div class="fact"><div class="k">Rank</div><div class="v">#${r.rank}</div></div>`:""}
+        ${r?.score?`<div class="fact"><div class="k">Score</div><div class="v">${esc(r.score)}</div></div>`:""}
         ${r?.fv?`<div class="fact"><div class="k">Future value</div><div class="v">${esc(r.fv)}</div></div>`:""}
         ${r?.eta?`<div class="fact"><div class="k">ETA</div><div class="v">${esc(r.eta)}</div></div>`:""}
         <div class="fact"><div class="k">Current level</div><div class="v">${esc(p.level||"—")}</div></div>
         ${p.debut?`<div class="fact"><div class="k">MLB debut</div><div class="v">${esc(p.debut)}</div></div>`:""}
       </div>
+      ${r?.scoreDetail?`<div><h4>Score breakdown</h4><p class="score-detail">${esc(r.scoreDetail)}</p><p style="color:var(--muted);font-size:.85rem;margin:4px 0 0"><a href="#method">How the score works</a></p></div>`:""}
       <div><h4>Path through the system</h4><div class="ladder">${ladder}</div></div>
       <div><h4>Season by season</h4>${own.length?`<div class="tbl"><table>${table}</table></div>`:`<div class="empty">No affiliated stats yet.</div>`}</div>
       <div><h4>Recent moves</h4>${moves.length?moves.map(t=>`<div class="tx"><span class="kind k-${t.type.split(/[ /]/)[0]}">${esc(t.type)}</span><div class="what"><span class="pl">${fmtDay(t.date)}</span><span class="desc">${esc(t.description)}</span></div></div>`).join(""):`<p style="color:var(--muted);margin:0">No moves in the last 90 days.</p>`}</div>
@@ -361,6 +370,36 @@ function viewIndexPlayer(id){
   </article>`;
 }
 
+// ---------- Methodology ----------
+function viewMethod(){
+  return `<a class="back" href="#top100">← Back to rankings</a>
+  <article class="method">
+    <h2 class="sec">How the rankings work</h2>
+    <p class="lede">The Top 100 is sorted by a single score. Every part of it is listed here, so anyone can check a ranking or argue with it.</p>
+    <h3>The score</h3>
+    <p>Each player's score adds up four parts. Higher scores rank higher.</p>
+    <ol>
+      <li><b>Level.</b> The highest level he reached this season, times 0.6: Rookie 0, Single-A 0.6, High-A 1.2, Double-A 1.8, Triple-A 2.4.</li>
+      <li><b>Age compared to level.</b> 0.7 points for every year he is younger than the typical age at that level, and minus 0.7 for every year older. Typical ages: Rookie 19.5, Single-A 20.5, High-A 21.5, Double-A 22.5, Triple-A 24.</li>
+      <li><b>2026 production.</b>
+        <br><i>Hitters:</i> (OPS − .750) × 8, plus 0.04 for each point of walk rate above 10%, minus 0.04 for each point of strikeout rate above 22%.
+        <br><i>Pitchers:</i> (strikeout rate − walk rate − 15) × 0.1, plus (4.00 − ERA) × 0.25, minus 0.3 for the extra injury and development risk pitchers carry.
+        <br>Production counts in full at 400 plate appearances or 90 innings, and proportionally less below that, so small samples can't swing a ranking.</li>
+      <li><b>Industry consensus.</b> +1.2 for players on MLB Pipeline's most recent Top 100 (August 2026), +0.6 for players on its June list, +0.2 for players on its preseason list only. Pipeline's lists decide who is considered; our formula decides the order.</li>
+    </ol>
+    <div class="example"><b>Example:</b> a 20-year-old at Double-A with an .850 OPS, 12% walk rate, 20% strikeout rate and 500 plate appearances, on the August list, scores 1.8 + 1.75 + 0.96 + 1.2 = <b>5.71</b>.</div>
+    <h3>Who's eligible</h3>
+    <p>Players on any of MLB Pipeline's 2026 Top 100 lists who are still prospects (under 130 MLB at-bats or 50 MLB innings) and played in the affiliated minors in 2026. Also eligible: any player 22 or younger at Double-A or Triple-A with at least 350 plate appearances or 80 innings, so breakout players who aren't on industry lists still get a shot.</p>
+    <h3>What the formula leaves out</h3>
+    <ul>
+      <li>Defense and position. A shortstop and a first baseman with the same bat score the same.</li>
+      <li>Scouting grades, such as bat speed, raw power or velocity.</li>
+      <li>Injuries. A player who missed time simply has a smaller sample.</li>
+    </ul>
+    <p>The weights are our own judgment calls. Each player's page shows his full score breakdown. Scores use 2026 regular-season stats and were last calculated October 27, 2026.</p>
+  </article>`;
+}
+
 // ---------- router ----------
 function render(){
   const h = location.hash.slice(1) || "top100";
@@ -372,6 +411,7 @@ function render(){
   }
   else if (h === "wire") html = viewWire();
   else if (h === "players") html = viewPlayers();
+  else if (h === "method") { html = viewMethod(); nav = "top100"; }
   else { html = viewTop(); nav = "top100"; }
   $("#main").innerHTML = html;
   document.querySelectorAll("[data-nav]").forEach(a=>{ if(a.dataset.nav===nav) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
