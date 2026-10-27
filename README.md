@@ -39,3 +39,14 @@ Search for `Prospect Ledger` in `site/index.html` and replace it (three places: 
 ## Data use
 
 MLB's Stats API is free but intended for individual, non-commercial use. Before charging for the site or running ads at scale, look into a licensed stats source. Never copy rankings or write-ups from other publications; the rankings and blurbs here should be your own.
+
+## Subscriber gate (paywall)
+
+`site/index.html` has a passcode gate. Without the passcode, visitors see the top 10 of the rankings and the "How the rankings work" page; everything else shows a "Subscribers only" screen. Entering the passcode unlocks that browser until someone clicks "Lock this device" in the footer.
+
+Settings near the top of the script in `site/index.html`:
+- `PASS_HASH`: the SHA-256 hash of the passcode (the passcode itself isn't stored in the file). To change the passcode, hash the new one (for example at any SHA-256 tool) and paste the result here.
+- `SUBSCRIBE_URL`: paste a payment link (for example a Stripe Payment Link) to show a Subscribe button.
+- `FREE_RANKS`: how many ranked players are free to view.
+
+Limits: GitHub Pages only serves static files, so this gate runs in the visitor's browser. It stops casual visitors, but the data files (`site/data/*.json`) and this repository are public, and anyone technical can read them. A real paywall needs a host that checks a login before serving data, such as Netlify or Vercel with a membership service, or Cloudflare Access. Also check MLB's data terms before charging: the free Stats API is meant for non-commercial use.
