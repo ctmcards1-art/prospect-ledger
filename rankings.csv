@@ -7,6 +7,19 @@
 # eta    = optional year you expect him in the majors, e.g. 2027
 # blurb  = optional scouting write-up; wrap it in "double quotes" if it contains commas
 #
-# Example (delete the # to use it):
-# 1,Firstname Lastname,,60,2027,"Plus bat speed, advanced approach, likely a regular at second base."
 rank,name,mlb_id,fv,eta,blurb
+1,Franklin Arias,,,,
+2,Eli Willits,,,,
+3,Jesus Made,,,,
+4,Leo De Vries,,,,
+5,Josuar Gonzalez,,,,
+6,Rainiel Rodriguez,,,,
+7,Ryan Sloan,,,,
+8,Sebastian Walcott,,,,
+9,Theo Gillen,,,,
+10,JoJo Parker,,,,
+11,Emil Morales,,,,
+12,Josiah Hartshorn,,,,
+13,Eric Hartman,,,,
+14,Ethan Holliday,,,,
+15,Mike Sirota,,,,
