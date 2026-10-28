@@ -490,7 +490,7 @@ function viewTeam(org){
       <div><span class="rk">${x.orgRank}</span>${x.overall?`<span class="mv flat">#${x.overall} overall</span>`:""}</div>
       <div class="who"><div class="nm">${esc(x.name)}</div>
         <div class="meta">${[x.pos, x.age!=null?`Age ${x.age}`:"", lvlTag(x.level), `Score ${esc(x.score)}`].filter(Boolean).join("<span aria-hidden='true'>·</span>")}</div></div>
-      <div class="line">${line(x)}<br>${esc((DATA.season||""))} · ${esc(x.levels.join("/"))}</div>
+      <div class="line">${line(x)}<br>${esc(x.season||DATA.season||"")} · ${esc(x.levels.join("/"))}</div>
     </a>`;
   if (!unlocked) return head + `<div class="ledger">${row(t.list[0])}</div>` + gateHtml(`The rest of the ${t.name} Top ${size}`);
   return head + `<div class="ledger">${t.list.map(row).join("")}</div>`;
@@ -615,13 +615,13 @@ function viewMethod(){
     </ol>
     <div class="example"><b>Example:</b> a 20-year-old at Double-A with an .850 OPS, 12% walk rate, 20% strikeout rate and ${W.fullPA}+ plate appearances${hasPos?", playing 80% shortstop and 20% second base":""}, on the ${esc((F.consensus[0]||{}).label||"top")}, scores ${ex.lev.toFixed(2)} + ${ex.age.toFixed(2)} + ${ex.prod.toFixed(2)}${hasPos?` + ${ex.pos.toFixed(2)}`:""} + ${ex.boost.toFixed(2)} = <b>${exTotal.toFixed(2)}</b>.</div>
     <h3>Who's eligible</h3>
-    <p>Players on any of those lists who are still prospects (no more than ${E.rookieAB} MLB at-bats or ${E.rookieIP} MLB innings) and played in the affiliated minors. Also eligible: any player ${E.maxAge} or younger who reached ${E.levels.map(l=>levelName[l]||l).join(" or ")} with at least ${E.minPA} plate appearances or ${E.minIP} innings, so breakout players who aren't on industry lists still get a shot. Players who pass the rookie limits drop off automatically.${(F.guarantee||[]).length ? ` Every player on the ${esc(F.guarantee.map(g=>{const c=F.consensus.find(x=>x.label===g); return c ? c.source : g;}).join(" and "))} is guaranteed a spot in the Top ${F.size||100}; the formula still decides where he ranks.` : ""}</p>
+    <p>Every player in affiliated minor league baseball is scored, at every level and every age. A player is left off only if he's no longer a prospect (more than ${E.rookieAB} MLB at-bats or ${E.rookieIP} MLB innings) or his sample is too small to trust: he needs at least ${E.minPA ?? 100} plate appearances or ${E.minIP ?? 30} innings, unless he's on an industry list. Players who missed most of the season, usually because of an injury, are scored on the previous season if it was a full one; their score breakdown says so.${(F.guarantee||[]).length ? ` Every player on the ${esc(F.guarantee.map(g=>{const c=F.consensus.find(x=>x.label===g); return c ? c.source : g;}).join(" and "))} is guaranteed a spot in the Top ${F.size||150}; the formula still decides where he ranks.` : ""}</p>
     <h3>When it updates</h3>
     <p>Scores are recalculated every day. Movement arrows compare each player's rank to the previous day's list. In April and May, the formula uses the previous season's full stats, because early-season samples are too small to rank on; from June on it uses the current season.${DATA.formula?.rankSeason ? ` The current list uses ${DATA.formula.rankSeason} stats and was last calculated ${esc(DATA.formula.calculated)}.` : ""}</p>
     <h3>Farm system rankings</h3>
     <p>Organizations are ranked by how many of their players are in the Top ${F.size||150}. When two systems have the same number, the one whose prospects rank higher wins: the #1 prospect is worth ${F.size||150} points, #2 is worth ${(F.size||150)-1}, and so on. Farm rankings update every time the list does. <a href="#farm">See the farm system rankings</a>.</p>
     <h3>Team Top 20 lists</h3>
-    <p>Each organization's Top 20 uses the same score. A team's players in the Top ${F.size||150} come first, in their overall order; the rest of the list is the team's next-best prospects by score, any level, ${E.teamMaxAge ?? 25} or younger, with at least ${E.teamMinPA ?? 100} plate appearances or ${E.teamMinIP ?? 30} innings unless they're on an industry list.</p>
+    <p>Each organization's Top 20 comes from the same scores, using the same rules. A team's players in the Top ${F.size||150} come first, in their overall order; the rest of the list is the team's next-best prospects by score.</p>
     <h3>What the formula leaves out</h3>
     <ul>
       <li>${hasPos ? "How well a player defends. The position adjustment credits where he plays, not how well he plays there; detailed defensive metrics aren't published for the minors." : "Defense and position. A shortstop and a first baseman with the same bat score the same."}</li>
