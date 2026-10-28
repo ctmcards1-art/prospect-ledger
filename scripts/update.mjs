@@ -220,6 +220,27 @@ async function loadAllMilb(season, teams) {
       season, total: combined, byLevel,
     };
   }
+  // Players on an affiliated roster who haven't played this season (recent draftees, injured players)
+  let added = 0;
+  for (const sportId of MILB_SPORTS) {
+    let d;
+    try { d = await get(`/sports/${sportId}/players?season=${season}`); }
+    catch (e) { warn(`Roster list for ${LEVELS[sportId]} not loaded: ${e.message}`); continue; }
+    for (const p of d.people || []) {
+      if (!p.id || index[p.id] || p.active === false) continue;
+      const cur = p.currentTeam ? teams[p.currentTeam.id] : null;
+      if (!cur || !cur.level || cur.level === "MLB") continue;
+      const pos = p.primaryPosition?.abbreviation || "";
+      index[p.id] = {
+        id: p.id, name: p.fullName, pos, isPitcher: pos === "P", age: p.currentAge ?? null,
+        bats: p.batSide?.code || "", throws: p.pitchHand?.code || "",
+        level: cur.level, team: cur.name, org: cur.parentAbbr || "", orgName: cur.parentName || "",
+        season, total: null, byLevel: [],
+      };
+      added++;
+    }
+  }
+  log(`  Added ${added} rostered players with no ${season} stats yet`);
   return index;
 }
 // Turn a stored line back into raw counts so lines at several levels can be combined
