@@ -472,6 +472,37 @@ async function autoRank(cfg, pool, notes) {
   });
 }
 
+// ---------- farm system rankings ----------
+// Ranks all 30 organizations by how many players they have in the Top list.
+// Ties go to the system whose players rank higher (points: #1 = N points ... #N = 1 point).
+function buildFarm(rankings, teams, history, today) {
+  const N = rankings.length;
+  const orgs = new Map();
+  for (const t of Object.values(teams)) if (t.level === "MLB" && t.abbr && !orgs.has(t.abbr)) orgs.set(t.abbr, t.name);
+  const rows = [...orgs].map(([abbr, name]) => {
+    const ps = rankings.filter((r) => r.org === abbr && r.found).sort((a, b) => a.rank - b.rank);
+    return {
+      org: abbr, name, count: ps.length, points: ps.reduce((a, r) => a + (N + 1 - r.rank), 0),
+      top10: ps.filter((r) => r.rank <= 10).length, top50: ps.filter((r) => r.rank <= 50).length,
+      players: ps.map((r) => ({ id: r.id, name: r.name, rank: r.rank, pos: r.pos, level: r.level })),
+    };
+  });
+  rows.sort((a, b) => b.count - a.count || b.points - a.points || a.name.localeCompare(b.name));
+  rows.forEach((r, i) => { r.rank = i + 1; });
+  // One snapshot per day; movement compares to the previous day
+  const snap = Object.fromEntries(rows.map((r) => [r.org, { rank: r.rank, count: r.count }]));
+  const last = history[history.length - 1];
+  if (last && last.date === today) last.orgs = snap; else history.push({ date: today, orgs: snap });
+  while (history.length > 400) history.shift();
+  const prev = [...history].reverse().find((h) => h.date < today);
+  for (const r of rows) {
+    const p = prev?.orgs?.[r.org];
+    r.prevRank = prev ? (p ? p.rank : null) : undefined;
+    r.prevCount = prev ? (p ? p.count : null) : undefined;
+  }
+  return rows;
+}
+
 // ---------- main ----------
 async function main() {
   // The minor league season starts in April. Before then, "this season" means last year's.
@@ -584,7 +615,11 @@ async function main() {
     };
   });
 
-  const site = { updated: new Date().toISOString(), season, rankMode: cfg?.auto ? "auto" : "manual", formula: formulaInfo, rankings, players, transactions };
+  const farmFile = path.join(OUT_DIR, "farm-history.json");
+  const farmHistory = await readJson(farmFile, []);
+  const farm = rankings.length ? buildFarm(rankings, teams, farmHistory, today) : (previous.farm || []);
+  await fs.writeFile(farmFile, JSON.stringify(farmHistory, null, 1));
+  const site = { updated: new Date().toISOString(), season, rankMode: cfg?.auto ? "auto" : "manual", formula: formulaInfo, rankings, farm, players, transactions };
   await fs.writeFile(outFile, JSON.stringify(site));
   if (allMilb) {
     // Drop the raw counts that were only needed for combining lines, to keep the file small
