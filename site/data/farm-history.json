@@ -2,125 +2,125 @@
  {
   "date": "2026-10-28",
   "orgs": {
-   "LAD": {
-    "rank": 1,
-    "count": 11
-   },
    "MIL": {
+    "rank": 1,
+    "count": 10
+   },
+   "MIA": {
     "rank": 2,
     "count": 10
    },
-   "STL": {
+   "COL": {
     "rank": 3,
-    "count": 10
+    "count": 9
    },
-   "SF": {
+   "STL": {
     "rank": 4,
     "count": 8
    },
-   "BAL": {
+   "LAD": {
     "rank": 5,
     "count": 8
    },
-   "COL": {
+   "CLE": {
     "rank": 6,
     "count": 8
    },
-   "ATH": {
+   "TB": {
     "rank": 7,
     "count": 7
    },
-   "CLE": {
+   "BAL": {
     "rank": 8,
-    "count": 6
+    "count": 7
    },
-   "MIA": {
+   "AZ": {
     "rank": 9,
-    "count": 6
+    "count": 7
    },
-   "TB": {
+   "SEA": {
     "rank": 10,
     "count": 6
    },
-   "PIT": {
+   "SF": {
     "rank": 11,
     "count": 6
    },
-   "SEA": {
+   "ATH": {
     "rank": 12,
-    "count": 5
+    "count": 6
    },
-   "PHI": {
+   "MIN": {
     "rank": 13,
     "count": 5
    },
-   "MIN": {
+   "PIT": {
     "rank": 14,
     "count": 5
    },
-   "AZ": {
+   "LAA": {
     "rank": 15,
     "count": 5
    },
-   "LAA": {
+   "CIN": {
     "rank": 16,
     "count": 5
    },
-   "BOS": {
-    "rank": 17,
-    "count": 4
-   },
    "ATL": {
+    "rank": 17,
+    "count": 5
+   },
+   "PHI": {
     "rank": 18,
     "count": 4
    },
-   "TOR": {
+   "BOS": {
     "rank": 19,
     "count": 4
    },
-   "CIN": {
+   "DET": {
     "rank": 20,
     "count": 4
    },
-   "DET": {
-    "rank": 21,
-    "count": 4
-   },
    "WSH": {
-    "rank": 22,
+    "rank": 21,
     "count": 3
    },
    "TEX": {
+    "rank": 22,
+    "count": 3
+   },
+   "CWS": {
     "rank": 23,
     "count": 3
    },
-   "CHC": {
-    "rank": 24,
-    "count": 3
-   },
    "NYM": {
+    "rank": 24,
+    "count": 2
+   },
+   "CHC": {
     "rank": 25,
-    "count": 3
+    "count": 2
+   },
+   "TOR": {
+    "rank": 26,
+    "count": 2
    },
    "HOU": {
-    "rank": 26,
-    "count": 3
-   },
-   "SD": {
     "rank": 27,
     "count": 2
    },
-   "CWS": {
+   "KC": {
     "rank": 28,
     "count": 2
    },
-   "KC": {
+   "SD": {
     "rank": 29,
-    "count": 0
+    "count": 1
    },
    "NYY": {
     "rank": 30,
-    "count": 0
+    "count": 1
    }
   }
  }
