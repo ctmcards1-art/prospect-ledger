@@ -1,5 +1,5 @@
 {
- "_readme": "Settings for the automatic Top 100. Set auto to false to rank by hand in rankings.csv instead. See README for what each setting does.",
+ "_readme": "Settings for the automatic Top 100. Set auto to false to rank by hand in rankings.csv instead. 'guarantee' lists the consensus lists whose players always make the Top 100 (still ordered by the formula). See README for the rest.",
  "auto": true,
  "size": 100,
  "weights": {
@@ -27,13 +27,15 @@
   "AAA": 24
  },
  "eligibility": {
-  "maxAge": 22,
+  "maxAge": 21,
   "levels": [
+   "A",
+   "A+",
    "AA",
    "AAA"
   ],
-  "minPA": 350,
-  "minIP": 80,
+  "minPA": 250,
+  "minIP": 60,
   "rookieAB": 130,
   "rookieIP": 50
  },
@@ -193,5 +195,8 @@
   "Luis Hernández": 836582,
   "Leo Bernal": 699024,
   "Francisco Renteria": 836353
- }
+ },
+ "guarantee": [
+  "August list"
+ ]
 }
