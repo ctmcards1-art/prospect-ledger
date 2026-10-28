@@ -581,7 +581,7 @@ function viewIndexPlayer(id){
 // ---------- Methodology ----------
 function viewMethod(){
   const D = { weights:{level:0.6,age:0.7,ops:8,opsBase:0.75,walk:0.04,walkBase:10,strikeout:0.04,strikeoutBase:22,kbb:0.1,kbbBase:15,era:0.25,eraBase:4,pitcherRisk:0.3,fullPA:400,fullIP:90,position:{C:0.6,SS:0.4,CF:0.2,"2B":0.1,"3B":0.1,LF:-0.3,RF:-0.3,"1B":-0.5,DH:-0.7}},
-    typicalAge:{ROK:19.5,A:20.5,"A+":21.5,AA:22.5,AAA:24}, eligibility:{maxAge:22,levels:["AA","AAA"],minPA:350,minIP:80,rookieAB:130,rookieIP:50},
+    typicalAge:{ROK:19.5,A:20.5,"A+":21.5,AA:22.5,AAA:24}, eligibility:{minAB:25,minIP:5,fallbackPA:100,fallbackIP:30,rookieAB:130,rookieIP:50},
     consensus:[{label:"August list",source:"MLB Pipeline Top 100, August 2026 update",boost:1.2},{label:"June list",source:"MLB Pipeline Top 100, June 2026 update",boost:0.6},{label:"preseason list",source:"MLB Pipeline Top 100, preseason 2026",boost:0.2}] };
   const F = DATA.formula || D, W = F.weights, T = F.typicalAge, E = F.eligibility;
   const n = (v)=>String(+(+v).toFixed(2));
@@ -602,7 +602,7 @@ function viewMethod(){
     <h3>The score</h3>
     <p>Each player's score adds up ${hasPos?"five":"four"} parts. Higher scores rank higher.</p>
     <ol>
-      <li><b>Level.</b> The highest level he reached this season, times ${n(W.level)}: ${LV.map(([nm],i)=>`${nm} ${n(i*W.level)}`).join(", ")}.</li>
+      <li><b>Level.</b> The highest level where he qualified this season, times ${n(W.level)}. To qualify at a level, a hitter needs at least ${E.minAB ?? 25} at-bats there and a pitcher at least ${E.minIP ?? 5} innings, so a short call-up or rehab stint doesn't count as reaching that level. Level values: ${LV.map(([nm],i)=>`${nm} ${n(i*W.level)}`).join(", ")}.</li>
       <li><b>Age compared to level.</b> ${n(W.age)} points for every year he is younger than the typical age at that level, and minus ${n(W.age)} for every year older. Typical ages: ${LV.map(([nm,k])=>`${nm} ${T[k]}`).join(", ")}.</li>
       <li><b>Production.</b>
         <br><i>Hitters:</i> (OPS − ${ops3(W.opsBase)}) × ${n(W.ops)}, plus ${n(W.walk)} for each point of walk rate above ${n(W.walkBase)}%, minus ${n(W.strikeout)} for each point of strikeout rate above ${n(W.strikeoutBase)}%.
@@ -615,7 +615,7 @@ function viewMethod(){
     </ol>
     <div class="example"><b>Example:</b> a 20-year-old at Double-A with an .850 OPS, 12% walk rate, 20% strikeout rate and ${W.fullPA}+ plate appearances${hasPos?", playing 80% shortstop and 20% second base":""}, on the ${esc((F.consensus[0]||{}).label||"top")}, scores ${ex.lev.toFixed(2)} + ${ex.age.toFixed(2)} + ${ex.prod.toFixed(2)}${hasPos?` + ${ex.pos.toFixed(2)}`:""} + ${ex.boost.toFixed(2)} = <b>${exTotal.toFixed(2)}</b>.</div>
     <h3>Who's eligible</h3>
-    <p>Every player in affiliated minor league baseball is scored, at every level and every age. A player is left off only if he's no longer a prospect (more than ${E.rookieAB} MLB at-bats or ${E.rookieIP} MLB innings) or his sample is too small to trust: he needs at least ${E.minPA ?? 100} plate appearances or ${E.minIP ?? 30} innings, unless he's on an industry list. Players who missed most of the season, usually because of an injury, are scored on the previous season if it was a full one; their score breakdown says so.${(F.guarantee||[]).length ? ` Every player on the ${esc(F.guarantee.map(g=>{const c=F.consensus.find(x=>x.label===g); return c ? c.source : g;}).join(" and "))} is guaranteed a spot in the Top ${F.size||150}; the formula still decides where he ranks.` : ""}</p>
+    <p>Every player in affiliated minor league baseball is scored, at every level and every age. A player is left off only if he's no longer a prospect (more than ${E.rookieAB} MLB at-bats or ${E.rookieIP} MLB innings) or he hasn't qualified at any level yet: a hitter needs at least ${E.minAB ?? 25} at-bats at one level and a pitcher at least ${E.minIP ?? 5} innings, unless he's on an industry list. Small samples can't swing a ranking, because production counts in full only at ${W.fullPA} plate appearances or ${W.fullIP} innings. Players who missed most of the season, usually because of an injury (fewer than ${E.fallbackPA ?? 100} plate appearances or ${E.fallbackIP ?? 30} innings), are scored on the previous season if it was bigger; their score breakdown says so.${(F.guarantee||[]).length ? ` Every player on the ${esc(F.guarantee.map(g=>{const c=F.consensus.find(x=>x.label===g); return c ? c.source : g;}).join(" and "))} is guaranteed a spot in the Top ${F.size||150}; the formula still decides where he ranks.` : ""}</p>
     <h3>When it updates</h3>
     <p>Scores are recalculated every day. Movement arrows compare each player's rank to the previous day's list. In April and May, the formula uses the previous season's full stats, because early-season samples are too small to rank on; from June on it uses the current season.${DATA.formula?.rankSeason ? ` The current list uses ${DATA.formula.rankSeason} stats and was last calculated ${esc(DATA.formula.calculated)}.` : ""}</p>
     <h3>Farm system rankings</h3>
