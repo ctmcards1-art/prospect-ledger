@@ -6,103 +6,103 @@
     "rank": 1,
     "count": 10
    },
-   "MIA": {
+   "STL": {
     "rank": 2,
     "count": 10
    },
-   "COL": {
+   "MIA": {
     "rank": 3,
     "count": 9
    },
-   "STL": {
+   "COL": {
     "rank": 4,
-    "count": 8
+    "count": 9
    },
    "LAD": {
     "rank": 5,
-    "count": 8
-   },
-   "CLE": {
-    "rank": 6,
-    "count": 8
+    "count": 7
    },
    "TB": {
-    "rank": 7,
+    "rank": 6,
     "count": 7
    },
    "BAL": {
-    "rank": 8,
-    "count": 7
-   },
-   "AZ": {
-    "rank": 9,
+    "rank": 7,
     "count": 7
    },
    "SEA": {
-    "rank": 10,
+    "rank": 8,
     "count": 6
    },
    "SF": {
-    "rank": 11,
+    "rank": 9,
     "count": 6
    },
    "ATH": {
+    "rank": 10,
+    "count": 6
+   },
+   "AZ": {
+    "rank": 11,
+    "count": 6
+   },
+   "ATL": {
     "rank": 12,
     "count": 6
    },
-   "MIN": {
+   "CLE": {
     "rank": 13,
     "count": 5
    },
-   "PIT": {
+   "MIN": {
     "rank": 14,
     "count": 5
    },
-   "LAA": {
+   "PIT": {
     "rank": 15,
     "count": 5
    },
-   "CIN": {
+   "LAA": {
     "rank": 16,
     "count": 5
    },
-   "ATL": {
+   "CIN": {
     "rank": 17,
     "count": 5
    },
-   "PHI": {
+   "BOS": {
     "rank": 18,
     "count": 4
    },
-   "BOS": {
+   "PHI": {
     "rank": 19,
     "count": 4
    },
-   "DET": {
+   "TOR": {
     "rank": 20,
     "count": 4
    },
-   "WSH": {
+   "DET": {
     "rank": 21,
-    "count": 3
+    "count": 4
    },
-   "TEX": {
+   "WSH": {
     "rank": 22,
     "count": 3
    },
-   "CWS": {
+   "NYM": {
     "rank": 23,
     "count": 3
    },
-   "NYM": {
+   "TEX": {
     "rank": 24,
-    "count": 2
+    "count": 3
+   },
+   "CWS": {
+    "rank": 25,
+    "count": 3
    },
    "CHC": {
-    "rank": 25,
-    "count": 2
-   },
-   "TOR": {
     "rank": 26,
     "count": 2
    },
