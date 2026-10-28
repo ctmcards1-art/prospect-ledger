@@ -157,9 +157,11 @@ tr:last-child td{border-bottom:0}
 .lockfade{position:relative;max-height:150px;overflow:hidden;opacity:.5;pointer-events:none;user-select:none;filter:blur(3px)}
 .gate .price{font-family:var(--f-display);font-weight:800;font-size:1.6rem;margin:0 0 12px}
 .gate .soon{display:inline-block;font-family:var(--f-data);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--line);border-radius:3px;padding:8px 14px}
-.gate .hint{font-size:.82rem;margin:16px auto 0}
+.gate .hint{font-size:.88rem;margin:16px auto 0}
+.gate .signin{all:unset;cursor:pointer;color:var(--pine);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.gate .signin:focus-visible{outline:2px solid var(--flag);outline-offset:2px}
 .keydock{position:fixed;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:20;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
-.keybtn{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--muted);opacity:.55;cursor:pointer;display:grid;place-items:center;padding:0}
+.keybtn{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--muted);opacity:.8;cursor:pointer;display:grid;place-items:center;padding:0}
 .keybtn:hover,.keybtn[aria-expanded="true"]{opacity:1;color:var(--pine)}
 .keybtn.on{color:var(--up);opacity:.75}
 .keypanel{background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 28px rgb(0 0 0 / .2);padding:12px 14px;width:250px;max-width:calc(100vw - 32px);font-size:.88rem}
@@ -256,10 +258,13 @@ function gateHtml(what){
     <ul><li>The full Top 100 with score breakdowns</li><li>A page for every minor leaguer</li><li>The daily transaction wire</li></ul>
     ${SUB_PRICE ? `<div class="price">${esc(SUB_PRICE)}</div>` : ""}
     ${SUBSCRIBE_URL ? `<a class="sub" href="${esc(SUBSCRIBE_URL)}" target="_blank" rel="noopener">Subscribe</a>` : `<span class="soon">Subscriptions open soon</span>`}
-    <p class="hint">Already subscribed? Sign in with the key in the bottom corner.</p>
+    <p class="hint">Already subscribed? <button type="button" class="signin" id="gate-signin">Sign in</button></p>
   </div>`;
 }
-function bindGate(){}
+function bindGate(){
+  const b=$("#gate-signin");
+  if (b) b.addEventListener("click", ()=>{ $("#keypanel").hidden=false; $("#keybtn").setAttribute("aria-expanded","true"); $("#key-code").focus(); });
+}
 function setUnlocked(on){
   unlocked = on;
   try { on ? localStorage.setItem(ACCESS_KEY, PASS_HASH) : localStorage.removeItem(ACCESS_KEY); } catch (e) {}
@@ -532,6 +537,7 @@ function render(){
   $("#main").innerHTML = html;
   document.querySelectorAll("[data-nav]").forEach(a=>{ if(a.dataset.nav===nav) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
   bind();
+  bindGate();
   syncKey();
 }
 function bind(){
