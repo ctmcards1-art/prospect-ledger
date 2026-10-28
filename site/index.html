@@ -3,31 +3,34 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Prospect Ledger</title>
+<title>MiLB Report</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Prospect rankings and a daily minor league transaction wire.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: publication masthead over a single reading column; list and wire are dense ledgers, player page is a scouting card */
+/* Layout: deep-sea masthead band over a single reading column; list and wire are dense ledgers, player page is a scouting card */
 :root{
-  --paper:#f4f6f3; --surface:#ffffff; --sunk:#e9eee9; --line:#d3dbd5;
-  --ink:#16201b; --muted:#5b6a62; --pine:#1d4a37; --pine-ink:#ffffff; --flag:#c99700;
-  --up:#1d7a4d; --down:#b13a2c;
+  --paper:#f2f6fa; --surface:#ffffff; --sunk:#e4ecf4; --line:#ccd9e5;
+  --ink:#0b1a2a; --muted:#51677d; --pine:#0b3d66; --pine-ink:#ffffff; --flag:#1f9ec9;
+  --up:#17795a; --down:#b8382c;
+  --sea:#0a2f4f; --sea-2:#0d3b63; --sea-ink:#f1f6fb; --sea-muted:#a3bdd6; --foam:#5cc6f0;
   --f-display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
   --f-body:"Source Serif 4",Georgia,"Times New Roman",serif;
   --f-data:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --paper:#0e1512; --surface:#151f1a; --sunk:#1c2822; --line:#2a3931;
-  --ink:#e6ece8; --muted:#94a49b; --pine:#7cc8a2; --pine-ink:#0e1512; --flag:#e9bd3c;
-  --up:#5bc893; --down:#ef7a6a; color-scheme:dark}}
+  --paper:#07111c; --surface:#0d1b2b; --sunk:#13253a; --line:#1e3550;
+  --ink:#e3ecf5; --muted:#8aa3bc; --pine:#5bb2ea; --pine-ink:#07111c; --flag:#4cc3ef;
+  --up:#4fc597; --down:#f07a6b;
+  --sea:#061f36; --sea-2:#0a2a47; --sea-ink:#eef4fa; --sea-muted:#8fb0cf; --foam:#5cc6f0; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --paper:#0e1512; --surface:#151f1a; --sunk:#1c2822; --line:#2a3931;
-  --ink:#e6ece8; --muted:#94a49b; --pine:#7cc8a2; --pine-ink:#0e1512; --flag:#e9bd3c;
-  --up:#5bc893; --down:#ef7a6a; color-scheme:dark}
+  --paper:#07111c; --surface:#0d1b2b; --sunk:#13253a; --line:#1e3550;
+  --ink:#e3ecf5; --muted:#8aa3bc; --pine:#5bb2ea; --pine-ink:#07111c; --flag:#4cc3ef;
+  --up:#4fc597; --down:#f07a6b;
+  --sea:#061f36; --sea-2:#0a2a47; --sea-ink:#eef4fa; --sea-muted:#8fb0cf; --foam:#5cc6f0; color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
@@ -37,15 +40,20 @@ button,input,select{font:inherit}
 :focus-visible{outline:2px solid var(--flag);outline-offset:2px}
 
 /* masthead */
-.mast{border-bottom:4px double var(--ink);padding-block:28px 14px}
+.band{background:linear-gradient(180deg,var(--sea) 0%,var(--sea-2) 100%);color:var(--sea-ink);border-bottom:3px solid var(--foam)}
+.mast{border-bottom:4px double color-mix(in srgb,var(--sea-ink) 30%,transparent);padding-block:28px 14px}
 .mast .row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px}
 .mast h1{margin:0;font-family:var(--f-display);font-weight:900;font-size:clamp(2.6rem,7vw,4.4rem);line-height:.88;letter-spacing:.005em;text-transform:uppercase}
 .mast h1 a{text-decoration:none}
-.mast .tag{font-family:var(--f-data);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+.mast h1{text-transform:none}
+.mast h1 .up{text-transform:uppercase}
+.mast .tag{font-family:var(--f-data);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--sea-muted);margin-top:8px}
+.mast h1 .up{color:var(--foam)}
 nav.sections{display:flex;gap:2px;flex-wrap:wrap}
-nav.sections a{font-family:var(--f-display);font-weight:800;font-size:1.05rem;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;padding:6px 12px;border-radius:3px;color:var(--muted)}
-nav.sections a[aria-current="page"]{background:var(--pine);color:var(--pine-ink)}
-.dateline{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--f-data);font-size:.72rem;color:var(--muted);padding-block:8px;border-bottom:1px solid var(--line);letter-spacing:.04em}
+nav.sections a{font-family:var(--f-display);font-weight:800;font-size:1.05rem;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;padding:6px 12px;border-radius:3px;color:var(--sea-muted)}
+nav.sections a:hover{color:var(--sea-ink)}
+nav.sections a[aria-current="page"]{background:var(--foam);color:var(--sea)}
+.dateline{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--f-data);font-size:.72rem;color:var(--sea-muted);padding-block:10px;letter-spacing:.04em}
 .preview{background:color-mix(in srgb,var(--flag) 16%,transparent);border:1px solid var(--flag);color:var(--ink);font-family:var(--f-data);font-size:.78rem;padding:8px 12px;border-radius:4px;margin-top:14px}
 
 main{padding-block:24px 64px}
@@ -147,6 +155,20 @@ tr:last-child td{border-bottom:0}
 .gate .err{color:var(--down);font-size:.88rem;min-height:1.3em;margin:8px 0 0}
 .gate .or{font-family:var(--f-data);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:16px 0 10px}
 .lockfade{position:relative;max-height:150px;overflow:hidden;opacity:.5;pointer-events:none;user-select:none;filter:blur(3px)}
+.gate .price{font-family:var(--f-display);font-weight:800;font-size:1.6rem;margin:0 0 12px}
+.gate .soon{display:inline-block;font-family:var(--f-data);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--line);border-radius:3px;padding:8px 14px}
+.gate .hint{font-size:.82rem;margin:16px auto 0}
+.keydock{position:fixed;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:20;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.keybtn{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--muted);opacity:.55;cursor:pointer;display:grid;place-items:center;padding:0}
+.keybtn:hover,.keybtn[aria-expanded="true"]{opacity:1;color:var(--pine)}
+.keybtn.on{color:var(--up);opacity:.75}
+.keypanel{background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 28px rgb(0 0 0 / .2);padding:12px 14px;width:250px;max-width:calc(100vw - 32px);font-size:.88rem}
+.keypanel label{display:block;font-family:var(--f-data);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.keypanel .row{display:flex;gap:6px}
+.keypanel input{flex:1;min-width:0;padding:7px 9px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink)}
+.keypanel button{font-family:var(--f-display);font-weight:800;letter-spacing:.05em;text-transform:uppercase;background:var(--pine);color:var(--pine-ink);border:0;border-radius:3px;padding:7px 10px;cursor:pointer}
+.keypanel p{margin:0 0 8px}
+.keypanel .err{color:var(--down);font-size:.8rem;margin:6px 0 0;min-height:1em}
 .lock-link{background:none;border:0;color:var(--muted);font-family:var(--f-data);font-size:.72rem;cursor:pointer;text-decoration:underline;padding:0}
 .empty{background:var(--surface);border:1px dashed var(--line);border-radius:4px;padding:28px 24px;color:var(--muted);max-width:70ch}
 .empty h3{font-family:var(--f-display);font-weight:800;text-transform:uppercase;color:var(--ink);margin:0 0 6px;font-size:1.4rem}
@@ -156,11 +178,11 @@ footer{border-top:1px solid var(--line);padding-block:18px 32px;font-family:var(
 </style>
 </head>
 <body>
-<header class="wrap">
+<header class="band"><div class="wrap">
   <div class="mast">
     <div class="row">
       <div>
-        <h1><a href="#top100" id="site-name">Prospect Ledger</a></h1>
+        <h1><a href="#top100" id="site-name">MiLB <span class="up">Report</span></a></h1>
         <div class="tag">Prospect rankings · Daily transaction wire</div>
       </div>
       <nav class="sections" aria-label="Sections">
@@ -171,15 +193,22 @@ footer{border-top:1px solid var(--line);padding-block:18px 32px;font-family:var(
     </div>
   </div>
   <div class="dateline"><span id="dl-left">Loading…</span><span id="dl-right"></span></div>
-  <div id="preview-note" class="preview" hidden></div>
-</header>
+</div></header>
+<div class="wrap"><div id="preview-note" class="preview" hidden></div></div>
 <main class="wrap" id="main" tabindex="-1"></main>
-<footer class="wrap"><button class="lock-link" id="lock-again" hidden>Lock this device</button> Stats and transactions from MLB's public Stats API, refreshed automatically. Rankings are the site's own, built with a <a href="#method">published formula</a>; MLB Pipeline's 2026 lists are used to decide which players are considered.</footer>
+<div class="keydock">
+  <div class="keypanel" id="keypanel" hidden>
+    <form id="key-form"><label for="key-code">Subscriber passcode</label><div class="row"><input id="key-code" type="password" autocomplete="off"><button type="submit">Unlock</button></div><p class="err" id="key-err" role="alert"></p></form>
+    <div id="key-on" hidden><p>Unlocked on this device.</p><button type="button" id="key-lock">Lock this device</button></div>
+  </div>
+  <button class="keybtn" id="keybtn" type="button" aria-label="Subscriber sign-in" aria-expanded="false" aria-controls="keypanel"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2 20 3"/><path d="M17 6l3 3"/><path d="M14.5 8.5l2 2"/></svg></button>
+</div>
+<footer class="wrap">Stats and transactions from MLB's public Stats API, refreshed automatically. Rankings are the site's own, built with a <a href="#method">published formula</a>; MLB Pipeline's 2026 lists are used to decide which players are considered.</footer>
 
 <script>
 (function(){
 "use strict";
-const SITE_NAME = "Prospect Ledger";
+const SITE_NAME = "MiLB Report";
 const LEVELS = ["ROK","A","A+","AA","AAA","MLB"];
 const $ = (s)=>document.querySelector(s);
 const esc = (s)=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -188,39 +217,39 @@ let DATA = null;
 let filt = { q:"", org:"", kind:"" };
 let wireRankedOnly = false;
 
-// ---------- Subscriber gate ----------
-// This is a browser-side gate on a static site: it hides content from casual visitors,
-// but the data files themselves are public. See README for how to make it a real paywall.
-const PASS_HASH = "7927a50fe17badf6e05d1180eb0586837656bf9941d0b4aa2c0f571e6bc4d9a1";
-const SUBSCRIBE_URL = "";   // paste a payment link here (e.g. a Stripe Payment Link) to show a Subscribe button
+// ---------- Subscriptions ----------
+// Browser-side gate on a static site: it hides content from casual visitors, but the data files are public.
+// See README for how subscribers get the passcode and how to make this a real paywall.
+const PASS_HASH = "f597fe48d0fb88e1e37c1bd5f1e348ce6ebc2553778dbe5817b223860f3b8dbf"; // SHA-256 of the subscriber passcode
+const SUBSCRIBE_URL = "";   // paste your Stripe Payment Link here to turn on the Subscribe button
+const SUB_PRICE = "";       // e.g. "$6 / month" - shown on the subscribe box when set
 const FREE_RANKS = 10;      // how many of the Top 100 non-subscribers can see
+const ACCESS_KEY = "milb-access";
 let unlocked = false;
-try { unlocked = localStorage.getItem("pl-access") === PASS_HASH; } catch (e) {}
+try { unlocked = localStorage.getItem(ACCESS_KEY) === PASS_HASH; } catch (e) {}
 async function sha256(t){ const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
 function gateHtml(what){
   return `<div class="gate" id="gate">
     <h3>Subscribers only</h3>
     <p>${esc(what)} is part of a ${esc(SITE_NAME)} subscription.</p>
     <ul><li>The full Top 100 with score breakdowns</li><li>A page for every minor leaguer</li><li>The daily transaction wire</li></ul>
-    ${SUBSCRIBE_URL ? `<a class="sub" href="${esc(SUBSCRIBE_URL)}" target="_blank" rel="noopener">Subscribe</a><div class="or">or enter your passcode</div>` : `<div class="or">Subscriptions open soon · have a passcode?</div>`}
-    <form id="gate-form"><input id="gate-code" type="password" placeholder="Passcode" autocomplete="off" aria-label="Passcode"><button type="submit">Unlock</button></form>
-    <p class="err" id="gate-err" role="alert"></p>
+    ${SUB_PRICE ? `<div class="price">${esc(SUB_PRICE)}</div>` : ""}
+    ${SUBSCRIBE_URL ? `<a class="sub" href="${esc(SUBSCRIBE_URL)}" target="_blank" rel="noopener">Subscribe</a>` : `<span class="soon">Subscriptions open soon</span>`}
+    <p class="hint">Already subscribed? Sign in with the key in the bottom corner.</p>
   </div>`;
 }
-function bindGate(){
-  const f = $("#gate-form");
-  if (!f) return;
-  f.addEventListener("submit", async (e)=>{
-    e.preventDefault();
-    const v = $("#gate-code").value.trim();
-    if (await sha256(v) === PASS_HASH) {
-      unlocked = true;
-      try { localStorage.setItem("pl-access", PASS_HASH); } catch (err) {}
-      render();
-    } else {
-      $("#gate-err").textContent = "That passcode didn't work. Check it and try again.";
-    }
-  });
+function bindGate(){}
+function setUnlocked(on){
+  unlocked = on;
+  try { on ? localStorage.setItem(ACCESS_KEY, PASS_HASH) : localStorage.removeItem(ACCESS_KEY); } catch (e) {}
+  render();
+}
+function syncKey(){
+  const b=$("#keybtn"); if(!b) return;
+  b.classList.toggle("on", unlocked);
+  b.setAttribute("aria-label", unlocked ? "Subscriber access: unlocked" : "Subscriber sign-in");
+  $("#key-form").hidden = unlocked;
+  $("#key-on").hidden = !unlocked;
 }
 let ALL = null, allLoading = null, allFailed = false;
 let dir = { q:"", org:"", level:"", kind:"H", sort:"pa", desc:true, show:100 };
@@ -236,7 +265,7 @@ function loadAll(){
 const lineOf = (p)=> p.total || p.byLevel?.[p.byLevel.length-1]?.line || null;
 
 document.title = SITE_NAME;
-$("#site-name").textContent = SITE_NAME;
+$("#site-name").innerHTML = SITE_NAME.replace(/^(\S+)\s(.*)$/, '$1 <span class="up">$2</span>');
 
 function lvlTag(l){ return l ? `<span class="lvl${l==="MLB"?" mlb":""}">${esc(l)}</span>` : ""; }
 function move(r){
@@ -282,7 +311,7 @@ function viewTop(){
       </div>
       <div class="line">${summaryLine(r.summary)}</div>
     </a>`).join("") : (hidden.length ? "" : `<div class="empty">No ranked players match those filters.</div>`)}</div>
-  ${hidden.length ? `<div class="lockfade" aria-hidden="true"><div class="ledger">${hidden.slice(0,3).map(r=>`<div class="ledger-row"><div><span class="rk">${r.rank}</span></div><div class="who"><div class="nm">Subscriber ranking</div><div class="meta">Unlock to see</div></div><div class="line"></div></div>`).join("")}</div></div>${gateHtml(`Ranks ${FREE_RANKS+1}–${R.length}`)}` : ""}`; })()}`;
+  ${hidden.length ? `<div class="lockfade" aria-hidden="true"><div class="ledger">${hidden.slice(0,3).map(r=>`<div class="ledger-row"><div><span class="rk">${r.rank}</span></div><div class="who"><div class="nm">Subscriber ranking</div><div class="meta">Unlock to see</div></div><div class="line"></div></div>`).join("")}</div></div>${gateHtml(`The rest of the Top ${R.length}`)}` : ""}`; })()}`;
 }
 function emptyRankings(){
   return `<div class="empty"><h3>Rankings coming soon</h3>
@@ -470,8 +499,7 @@ function render(){
   $("#main").innerHTML = html;
   document.querySelectorAll("[data-nav]").forEach(a=>{ if(a.dataset.nav===nav) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
   bind();
-  bindGate();
-  const lk=$("#lock-again"); if (lk) lk.hidden = !unlocked;
+  syncKey();
 }
 function bind(){
   const q=$("#f-q"), o=$("#f-org"), k=$("#f-kind"), rk=$("#f-ranked");
@@ -493,7 +521,20 @@ function bind(){
   }));
 }
 window.addEventListener("hashchange", ()=>{ render(); window.scrollTo(0,0); });
-$("#lock-again").addEventListener("click", ()=>{ unlocked=false; try{ localStorage.removeItem("pl-access"); }catch(e){} render(); });
+// Corner key: subscriber sign-in
+(function(){
+  const btn=$("#keybtn"), panel=$("#keypanel");
+  const close=()=>{ panel.hidden=true; btn.setAttribute("aria-expanded","false"); };
+  btn.addEventListener("click", ()=>{ const open=panel.hidden; panel.hidden=!open; btn.setAttribute("aria-expanded", String(open)); if(open && !unlocked) $("#key-code").focus(); });
+  document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !panel.hidden){ close(); btn.focus(); } });
+  $("#key-form").addEventListener("submit", async e=>{
+    e.preventDefault();
+    const v=$("#key-code").value.trim();
+    if (await sha256(v) === PASS_HASH) { $("#key-code").value=""; $("#key-err").textContent=""; setUnlocked(true); close(); }
+    else { $("#key-err").textContent="That passcode didn't work."; }
+  });
+  $("#key-lock").addEventListener("click", ()=>{ setUnlocked(false); close(); });
+})();
 
 fetch("data/site.json", {cache:"no-cache"})
   .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
