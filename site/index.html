@@ -293,7 +293,7 @@ function viewTop(){
     && (!q || r.name.toLowerCase().includes(q) || (r.orgName||"").toLowerCase().includes(q)));
   const top = R.length>=100 ? "Top 100" : `Top ${R.length}`;
   return `<div class="sec-head">
-    <div><h2 class="sec">${top} Prospects</h2><p>Ranked by a published formula built on level, age and 2026 production. <a href="#method">How the rankings work</a>. Arrows show movement since the last update.</p></div>
+    <div><h2 class="sec">${top} Prospects</h2><p>Ranked every day by a published formula built on level, age and production. <a href="#method">How the rankings work</a>. Arrows show movement since the last update.</p></div>
     <div class="filters">
       <input id="f-q" type="search" placeholder="Search player or team" value="${esc(filt.q)}" aria-label="Search">
       <select id="f-org" aria-label="Organization"><option value="">All organizations</option>${orgs.map(o=>`<option${o===filt.org?" selected":""}>${esc(o)}</option>`).join("")}</select>
@@ -450,31 +450,43 @@ function viewIndexPlayer(id){
 
 // ---------- Methodology ----------
 function viewMethod(){
+  const D = { weights:{level:0.6,age:0.7,ops:8,opsBase:0.75,walk:0.04,walkBase:10,strikeout:0.04,strikeoutBase:22,kbb:0.1,kbbBase:15,era:0.25,eraBase:4,pitcherRisk:0.3,fullPA:400,fullIP:90},
+    typicalAge:{ROK:19.5,A:20.5,"A+":21.5,AA:22.5,AAA:24}, eligibility:{maxAge:22,levels:["AA","AAA"],minPA:350,minIP:80,rookieAB:130,rookieIP:50},
+    consensus:[{label:"August list",source:"MLB Pipeline Top 100, August 2026 update",boost:1.2},{label:"June list",source:"MLB Pipeline Top 100, June 2026 update",boost:0.6},{label:"preseason list",source:"MLB Pipeline Top 100, preseason 2026",boost:0.2}] };
+  const F = DATA.formula || D, W = F.weights, T = F.typicalAge, E = F.eligibility;
+  const n = (v)=>String(+(+v).toFixed(2));
+  const LV = [["Rookie","ROK"],["Single-A","A"],["High-A","A+"],["Double-A","AA"],["Triple-A","AAA"]];
+  const ops3 = (v)=>(+v).toFixed(3).replace(/^0/,"");
+  const ex = { lev:3*W.level, age:(T.AA-20)*W.age, prod:(0.85-W.opsBase)*W.ops+(12-W.walkBase)*W.walk-(20-W.strikeoutBase)*W.strikeout, boost:(F.consensus[0]||{boost:0}).boost };
+  const exTotal = ex.lev+ex.age+ex.prod+ex.boost;
+  const levelName = {ROK:"Rookie",A:"Single-A","A+":"High-A",AA:"Double-A",AAA:"Triple-A"};
   return `<a class="back" href="#top100">← Back to rankings</a>
   <article class="method">
     <h2 class="sec">How the rankings work</h2>
-    <p class="lede">The Top 100 is sorted by a single score. Every part of it is listed here, so anyone can check a ranking or argue with it.</p>
+    <p class="lede">The Top 100 is sorted by a single score and recalculated every day from the latest stats. Every part of the formula is listed here, so anyone can check a ranking or argue with it.</p>
     <h3>The score</h3>
     <p>Each player's score adds up four parts. Higher scores rank higher.</p>
     <ol>
-      <li><b>Level.</b> The highest level he reached this season, times 0.6: Rookie 0, Single-A 0.6, High-A 1.2, Double-A 1.8, Triple-A 2.4.</li>
-      <li><b>Age compared to level.</b> 0.7 points for every year he is younger than the typical age at that level, and minus 0.7 for every year older. Typical ages: Rookie 19.5, Single-A 20.5, High-A 21.5, Double-A 22.5, Triple-A 24.</li>
-      <li><b>2026 production.</b>
-        <br><i>Hitters:</i> (OPS − .750) × 8, plus 0.04 for each point of walk rate above 10%, minus 0.04 for each point of strikeout rate above 22%.
-        <br><i>Pitchers:</i> (strikeout rate − walk rate − 15) × 0.1, plus (4.00 − ERA) × 0.25, minus 0.3 for the extra injury and development risk pitchers carry.
-        <br>Production counts in full at 400 plate appearances or 90 innings, and proportionally less below that, so small samples can't swing a ranking.</li>
-      <li><b>Industry consensus.</b> +1.2 for players on MLB Pipeline's most recent Top 100 (August 2026), +0.6 for players on its June list, +0.2 for players on its preseason list only. Pipeline's lists decide who is considered; our formula decides the order.</li>
+      <li><b>Level.</b> The highest level he reached this season, times ${n(W.level)}: ${LV.map(([nm],i)=>`${nm} ${n(i*W.level)}`).join(", ")}.</li>
+      <li><b>Age compared to level.</b> ${n(W.age)} points for every year he is younger than the typical age at that level, and minus ${n(W.age)} for every year older. Typical ages: ${LV.map(([nm,k])=>`${nm} ${T[k]}`).join(", ")}.</li>
+      <li><b>Production.</b>
+        <br><i>Hitters:</i> (OPS − ${ops3(W.opsBase)}) × ${n(W.ops)}, plus ${n(W.walk)} for each point of walk rate above ${n(W.walkBase)}%, minus ${n(W.strikeout)} for each point of strikeout rate above ${n(W.strikeoutBase)}%.
+        <br><i>Pitchers:</i> (strikeout rate − walk rate − ${n(W.kbbBase)}) × ${n(W.kbb)}, plus (${(+W.eraBase).toFixed(2)} − ERA) × ${n(W.era)}, minus ${n(W.pitcherRisk)} for the extra injury and development risk pitchers carry.
+        <br>Production counts in full at ${W.fullPA} plate appearances or ${W.fullIP} innings, and proportionally less below that, so small samples can't swing a ranking.</li>
+      <li><b>Industry consensus.</b> ${F.consensus.map(c=>`+${n(c.boost)} for players on the ${esc(c.source)}`).join("; ")}. A player gets the boost from the strongest list he's on. These lists decide who is considered; our formula decides the order.</li>
     </ol>
-    <div class="example"><b>Example:</b> a 20-year-old at Double-A with an .850 OPS, 12% walk rate, 20% strikeout rate and 500 plate appearances, on the August list, scores 1.8 + 1.75 + 0.96 + 1.2 = <b>5.71</b>.</div>
+    <div class="example"><b>Example:</b> a 20-year-old at Double-A with an .850 OPS, 12% walk rate, 20% strikeout rate and ${W.fullPA}+ plate appearances, on the ${esc((F.consensus[0]||{}).label||"top")}, scores ${ex.lev.toFixed(2)} + ${ex.age.toFixed(2)} + ${ex.prod.toFixed(2)} + ${ex.boost.toFixed(2)} = <b>${exTotal.toFixed(2)}</b>.</div>
     <h3>Who's eligible</h3>
-    <p>Players on any of MLB Pipeline's 2026 Top 100 lists who are still prospects (under 130 MLB at-bats or 50 MLB innings) and played in the affiliated minors in 2026. Also eligible: any player 22 or younger at Double-A or Triple-A with at least 350 plate appearances or 80 innings, so breakout players who aren't on industry lists still get a shot.</p>
+    <p>Players on any of those lists who are still prospects (no more than ${E.rookieAB} MLB at-bats or ${E.rookieIP} MLB innings) and played in the affiliated minors. Also eligible: any player ${E.maxAge} or younger who reached ${E.levels.map(l=>levelName[l]||l).join(" or ")} with at least ${E.minPA} plate appearances or ${E.minIP} innings, so breakout players who aren't on industry lists still get a shot. Players who pass the rookie limits drop off automatically.</p>
+    <h3>When it updates</h3>
+    <p>Scores are recalculated every day. Movement arrows compare each player's rank to the previous day's list. In April and May, the formula uses the previous season's full stats, because early-season samples are too small to rank on; from June on it uses the current season.${DATA.formula?.rankSeason ? ` The current list uses ${DATA.formula.rankSeason} stats and was last calculated ${esc(DATA.formula.calculated)}.` : ""}</p>
     <h3>What the formula leaves out</h3>
     <ul>
       <li>Defense and position. A shortstop and a first baseman with the same bat score the same.</li>
       <li>Scouting grades, such as bat speed, raw power or velocity.</li>
       <li>Injuries. A player who missed time simply has a smaller sample.</li>
     </ul>
-    <p>The weights are our own judgment calls. Each player's page shows his full score breakdown. Scores use 2026 regular-season stats and were last calculated October 27, 2026.</p>
+    <p>The weights are our own judgment calls. Each player's page shows his full score breakdown.</p>
   </article>`;
 }
 
