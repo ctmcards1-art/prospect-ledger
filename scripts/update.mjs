@@ -447,7 +447,7 @@ async function rookieStatus(ids, cache) {
   for (let i = 0; i < todo.length; i += 8) await Promise.all(todo.slice(i, i + 8).map(one));
 }
 
-async function autoRank(cfg, pool, notes) {
+async function autoRank(cfg, pool, notes, prevPool = null, prevLabel = "") {
   const E = cfg.eligibility;
   const byName = new Map();
   for (const p of Object.values(pool)) { const k = norm(p.name); byName.set(k, [...(byName.get(k) || []), p]); }
@@ -464,19 +464,28 @@ async function autoRank(cfg, pool, notes) {
       if (!prev || prev.boost < c.boost) consOf.set(p.id, c);
     }
   }
-  // Candidates: anyone on a list, plus young players producing at the upper levels
-  const cands = [];
+  // Score every player in the minors. Optional filters (maxAge, levels) only apply when set in the config.
+  const minPA = E.minPA ?? 100, minIP = E.minIP ?? 30;
+  const enough = (sc) => (sc.pitcher ? ipToOuts(sc.L.ip) / 3 >= minIP : (sc.L.pa || 0) >= minPA);
+  const scored = [];
+  let fromPrev = 0;
   for (const p of Object.values(pool)) {
     const cons = consOf.get(p.id) || null;
-    const sc = scorePlayer(p, cons, cfg);
-    if (!sc) continue;
-    if (!cons) {
-      if ((p.age ?? 99) > E.maxAge || !E.levels.includes(sc.top)) continue;
-      if (sc.pitcher ? ipToOuts(sc.L.ip) / 3 < E.minIP : (sc.L.pa || 0) < E.minPA) continue;
+    if (!cons && E.maxAge != null && (p.age ?? 99) > E.maxAge) continue;
+    let sc = scorePlayer(p, cons, cfg), src = p;
+    // Barely played this season (injury, late signing): use last season if it was a real sample
+    if ((!sc || !enough(sc)) && prevPool?.[p.id]) {
+      const q = { ...prevPool[p.id], age: (p.age ?? prevPool[p.id].age) - 1, pos: p.pos || prevPool[p.id].pos };
+      const sq = scorePlayer(q, cons, cfg);
+      if (sq && enough(sq)) { sc = { ...sq, detail: `${sq.detail} \u00b7 ${prevLabel} stats (little or no time this season)` }; src = q; fromPrev++; }
     }
-    cands.push({ p, cons, ...sc });
+    if (!sc) continue;
+    if (!cons && !enough(sc)) continue;
+    if (!cons && E.levels && !E.levels.includes(sc.top)) continue;
+    scored.push({ p, src, cons, ...sc });
   }
-  cands.sort((a, b) => b.score - a.score);
+  log(`  Scored ${scored.length} players (${fromPrev} on ${prevLabel || "previous"} stats)`);
+  const cands = [...scored].sort((a, b) => b.score - a.score);
   // Drop anyone past rookie limits. Players on a guaranteed list always get a spot; the rest fill by score.
   const statusFile = path.join(OUT_DIR, "rookie-status.json");
   const status = await readJson(statusFile, {});
@@ -496,19 +505,9 @@ async function autoRank(cfg, pool, notes) {
   const out = [...forcedOK, ...fill].sort((x, y) => y.score - x.score).slice(0, cfg.size);
   const overall = new Map(out.map((c, i) => [c.p.id, i + 1]));
 
-  // Team lists: each organization's best prospects by the same score, any level, up to a max age
-  const teamSize = cfg.teamSize || 20, teamMaxAge = E.teamMaxAge ?? 25;
-  const all = [];
-  for (const p of Object.values(pool)) {
-    if (!p.org) continue;
-    const cons = consOf.get(p.id) || null;
-    if (!cons && (p.age ?? 99) > teamMaxAge) continue;
-    const sc = scorePlayer(p, cons, cfg);
-    if (!sc) continue;
-    // Small samples only count for players in the Top list or on an industry list
-    if (!cons && !overall.has(p.id) && (sc.pitcher ? ipToOuts(sc.L.ip) / 3 < (E.teamMinIP ?? 30) : (sc.L.pa || 0) < (E.teamMinPA ?? 100))) continue;
-    all.push({ p, cons, ...sc });
-  }
+  // Team lists: each organization's best prospects from the same scored pool
+  const teamSize = cfg.teamSize || 20, teamMaxAge = E.teamMaxAge ?? null;
+  const all = scored.filter((c) => c.p.org && (c.cons || teamMaxAge == null || (c.p.age ?? 99) <= teamMaxAge));
   // A team's players in the Top list come first, in that order; everyone else follows by score
   all.sort((a, b) => {
     const oa = overall.get(a.p.id), ob = overall.get(b.p.id);
@@ -533,7 +532,7 @@ async function autoRank(cfg, pool, notes) {
         ? { ip: L.ip ?? null, era: L.era ?? null, whip: L.whip ?? null, kPct: L.kPct ?? null, bbPct: L.bbPct ?? null }
         : { pa: L.pa ?? null, avg: L.avg ?? null, obp: L.obp ?? null, slg: L.slg ?? null, hr: L.hr ?? null, sb: L.sb ?? null };
       return { orgRank: i + 1, overall: overall.get(c.p.id) ?? null, id: c.p.id, name: c.p.name, pos: c.p.pos, age: c.p.age ?? null,
-        level: c.p.level || c.top, levels: [...new Set(c.p.byLevel.map((b) => b.level))], score: c.score.toFixed(2), scoreDetail: c.detail, pitcher: c.pitcher, line };
+        level: c.p.level || c.top, levels: [...new Set(c.src.byLevel.map((b) => b.level))], season: c.src.season, score: c.score.toFixed(2), scoreDetail: c.detail, pitcher: c.pitcher, line };
     });
   }
   await fs.writeFile(statusFile, JSON.stringify(status));
@@ -625,7 +624,10 @@ async function main() {
     }
     if (pool) {
       const notes = parseCsv(await fs.readFile(NOTES_FILE, "utf8").catch(() => ""));
-      const res = await autoRank(cfg, pool, notes);
+      let prevPool = null;
+      try { prevPool = await loadAllMilb(rankSeason - 1, teams); log(`Loaded ${rankSeason - 1} stats for players who barely played in ${rankSeason}`); }
+      catch (e) { warn(`Could not load ${rankSeason - 1} stats: ${e.message}`); }
+      const res = await autoRank(cfg, pool, notes, prevPool, String(rankSeason - 1));
       ranked = res.ranked; teamLists = res.teams;
       formulaInfo = { ...publicFormula(cfg), rankSeason, calculated: isoDate(TODAY) };
       log(`Auto-ranked ${ranked.length} players from the formula`);
