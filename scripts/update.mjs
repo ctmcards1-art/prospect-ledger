@@ -346,7 +346,7 @@ const LEVEL_NAMES = { ROK: "Rookie", A: "Single-A", "A+": "High-A", AA: "Double-
 const MILB_ORDER = ["ROK", "A", "A+", "AA", "AAA"];
 
 function publicFormula(cfg) {
-  return { weights: cfg.weights, typicalAge: cfg.typicalAge, eligibility: cfg.eligibility, size: cfg.size,
+  return { weights: cfg.weights, typicalAge: cfg.typicalAge, eligibility: cfg.eligibility, size: cfg.size, guarantee: cfg.guarantee || [],
     consensus: (cfg.consensus || []).map((c) => ({ label: c.label, source: c.source, boost: c.boost })) };
 }
 
@@ -425,19 +425,23 @@ async function autoRank(cfg, pool, notes) {
     cands.push({ p, cons, ...sc });
   }
   cands.sort((a, b) => b.score - a.score);
-  // Drop anyone past rookie limits, checking only as far down the list as needed
+  // Drop anyone past rookie limits. Players on a guaranteed list always get a spot; the rest fill by score.
   const statusFile = path.join(OUT_DIR, "rookie-status.json");
   const status = await readJson(statusFile, {});
-  const out = [];
-  for (let i = 0; i < cands.length && out.length < cfg.size; i += 40) {
-    const chunk = cands.slice(i, i + 40);
+  const guaranteed = new Set(cfg.guarantee || []);
+  const isGrad = (c) => { const st = status[c.p.id]; return st && (st.ab > E.rookieAB || st.ip > E.rookieIP); };
+  const forced = cands.filter((c) => c.cons && guaranteed.has(c.cons.label));
+  await rookieStatus(forced.map((c) => c.p.id), status);
+  const forcedOK = forced.filter((c) => !isGrad(c));
+  const forcedIds = new Set(forcedOK.map((c) => c.p.id));
+  const rest = cands.filter((c) => !forcedIds.has(c.p.id) && !(c.cons && guaranteed.has(c.cons.label)));
+  const fill = [];
+  for (let i = 0; i < rest.length && fill.length + forcedOK.length < cfg.size; i += 40) {
+    const chunk = rest.slice(i, i + 40);
     await rookieStatus(chunk.map((c) => c.p.id), status);
-    for (const c of chunk) {
-      const st = status[c.p.id];
-      if (st && (st.ab > E.rookieAB || st.ip > E.rookieIP)) continue;
-      if (out.length < cfg.size) out.push(c);
-    }
+    for (const c of chunk) if (!isGrad(c) && fill.length + forcedOK.length < cfg.size) fill.push(c);
   }
+  const out = [...forcedOK, ...fill].sort((x, y) => y.score - x.score).slice(0, cfg.size);
   await fs.writeFile(statusFile, JSON.stringify(status));
   const noteBy = new Map();
   for (const n of notes) { const id = parseInt(n.mlb_id, 10); noteBy.set(id ? `id:${id}` : `nm:${norm(n.name || "")}`, n); }
