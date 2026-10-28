@@ -191,6 +191,13 @@ tr:last-child td{border-bottom:0}
 .farm-players .none,.locked-more{font-size:.85rem;color:var(--muted);align-self:center}
 .farm-signin{all:unset;cursor:pointer;color:var(--pine);font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .farm-signin:focus-visible{outline:2px solid var(--flag);outline-offset:2px}
+.farm-name a.nm{text-decoration:none}
+.farm-name a.nm:hover{text-decoration:underline;text-underline-offset:3px}
+.farm-top20{margin-left:auto;font-family:var(--f-data);font-size:.74rem;color:var(--pine);text-decoration:none;white-space:nowrap}
+.farm-top20:hover{text-decoration:underline}
+.postbl{border-collapse:collapse;margin:8px 0;font-family:var(--f-data);font-size:.82rem;width:auto}
+.postbl td{padding:3px 14px 3px 0;border:0;text-align:left}
+.postbl td:last-child{text-align:right;font-variant-numeric:tabular-nums}
 .farm-note{color:var(--muted);font-size:.85rem;margin:12px 0 0;max-width:70ch}
 .farm-note a{color:var(--ink)}
 @media (max-width:640px){.farm-row{grid-template-columns:44px 1fr}}
@@ -453,7 +460,7 @@ function viewFarm(){
     return `<div class="farm-row" id="farm-${esc(f.org)}">
       <div class="farm-rk"><span class="rk">${f.rank}</span>${mv(f)}</div>
       <div class="farm-main">
-        <div class="farm-name"><span class="nm">${esc(f.name)}</span><span class="org">${esc(f.org)}</span></div>
+        <div class="farm-name"><a class="nm" href="#t-${esc(f.org)}">${esc(f.name)}</a><span class="org">${esc(f.org)}</span><a class="farm-top20" href="#t-${esc(f.org)}">Team Top 20 →</a></div>
         <div class="farm-bar" aria-hidden="true"><i style="width:${(f.count/max*100).toFixed(1)}%"></i></div>
         <div class="farm-meta"><span><b>${f.count}</b> in the Top ${N}</span>${f.top10?`<span><b>${f.top10}</b> in the top 10</span>`:""}<span><b>${f.top50}</b> in the top 50</span><span>${f.points} pts</span>${cd(f)}</div>
         <div class="farm-players">${list}</div>
@@ -462,6 +469,31 @@ function viewFarm(){
   }).join("");
   return head + `<div class="ledger farm">${rows}</div>
   <p class="farm-note">Points break ties: the #1 prospect is worth ${N} points, #2 is worth ${N-1}, and so on down to 1 point for #${N}. <a href="#method">How players are ranked</a>.</p>`;
+}
+
+// ---------- Team Top 20 ----------
+function viewTeam(org){
+  const T = DATA.teams || {};
+  const orgs = Object.values(T).sort((a,b)=>a.name.localeCompare(b.name));
+  if (!orgs.length) return `<a class="back" href="#farm">← Farm systems</a><div class="empty"><h3>Coming with the next update</h3><p>Team lists fill in the next time the rankings are calculated.</p></div>`;
+  const t = T[org] || orgs[0];
+  const farmRow = (DATA.farm||[]).find(f=>f.org===t.org);
+  const size = t.list.length;
+  const picker = `<select id="team-pick" aria-label="Choose a team">${orgs.map(o=>`<option value="${esc(o.org)}"${o.org===t.org?" selected":""}>${esc(o.name)}</option>`).join("")}</select>`;
+  const head = `<a class="back" href="#farm">← Farm systems</a>
+    <div class="sec-head"><div><h2 class="sec">${esc(t.name)} Top ${size||20}</h2><p>${farmRow?`Farm system rank: <b>#${farmRow.rank}</b> · ${farmRow.count} in the Top ${(DATA.rankings||[]).length}. `:""}Ranked by the same formula as the overall list. <a href="#method">How the rankings work</a>.</p></div><div class="filters">${picker}</div></div>`;
+  if (!size) return head + `<div class="empty">No ranked prospects for this organization yet.</div>`;
+  const line = (x)=> x.pitcher
+    ? `${esc(x.line.era??"—")} ERA · ${x.line.kPct??"—"}% K · ${x.line.bbPct??"—"}% BB · ${esc(x.line.ip??"—")} IP`
+    : `${esc(x.line.avg??"—")}/${esc(x.line.obp??"—")}/${esc(x.line.slg??"—")} · ${x.line.hr??0} HR · ${x.line.sb??0} SB · ${x.line.pa??0} PA`;
+  const row = (x)=>`<a class="ledger-row" href="#p-${x.id}">
+      <div><span class="rk">${x.orgRank}</span>${x.overall?`<span class="mv flat">#${x.overall} overall</span>`:""}</div>
+      <div class="who"><div class="nm">${esc(x.name)}</div>
+        <div class="meta">${[x.pos, x.age!=null?`Age ${x.age}`:"", lvlTag(x.level), `Score ${esc(x.score)}`].filter(Boolean).join("<span aria-hidden='true'>·</span>")}</div></div>
+      <div class="line">${line(x)}<br>${esc((DATA.season||""))} · ${esc(x.levels.join("/"))}</div>
+    </a>`;
+  if (!unlocked) return head + `<div class="ledger">${row(t.list[0])}</div>` + gateHtml(`The rest of the ${t.name} Top ${size}`);
+  return head + `<div class="ledger">${t.list.map(row).join("")}</div>`;
 }
 
 // ---------- Players directory ----------
@@ -548,22 +580,27 @@ function viewIndexPlayer(id){
 
 // ---------- Methodology ----------
 function viewMethod(){
-  const D = { weights:{level:0.6,age:0.7,ops:8,opsBase:0.75,walk:0.04,walkBase:10,strikeout:0.04,strikeoutBase:22,kbb:0.1,kbbBase:15,era:0.25,eraBase:4,pitcherRisk:0.3,fullPA:400,fullIP:90},
+  const D = { weights:{level:0.6,age:0.7,ops:8,opsBase:0.75,walk:0.04,walkBase:10,strikeout:0.04,strikeoutBase:22,kbb:0.1,kbbBase:15,era:0.25,eraBase:4,pitcherRisk:0.3,fullPA:400,fullIP:90,position:{C:0.6,SS:0.4,CF:0.2,"2B":0.1,"3B":0.1,LF:-0.3,RF:-0.3,"1B":-0.5,DH:-0.7}},
     typicalAge:{ROK:19.5,A:20.5,"A+":21.5,AA:22.5,AAA:24}, eligibility:{maxAge:22,levels:["AA","AAA"],minPA:350,minIP:80,rookieAB:130,rookieIP:50},
     consensus:[{label:"August list",source:"MLB Pipeline Top 100, August 2026 update",boost:1.2},{label:"June list",source:"MLB Pipeline Top 100, June 2026 update",boost:0.6},{label:"preseason list",source:"MLB Pipeline Top 100, preseason 2026",boost:0.2}] };
   const F = DATA.formula || D, W = F.weights, T = F.typicalAge, E = F.eligibility;
   const n = (v)=>String(+(+v).toFixed(2));
   const LV = [["Rookie","ROK"],["Single-A","A"],["High-A","A+"],["Double-A","AA"],["Triple-A","AAA"]];
   const ops3 = (v)=>(+v).toFixed(3).replace(/^0/,"");
-  const ex = { lev:3*W.level, age:(T.AA-20)*W.age, prod:(0.85-W.opsBase)*W.ops+(12-W.walkBase)*W.walk-(20-W.strikeoutBase)*W.strikeout, boost:(F.consensus[0]||{boost:0}).boost };
-  const exTotal = ex.lev+ex.age+ex.prod+ex.boost;
+  const PV = W.position || {};
+  const hasPos = Object.keys(PV).length > 0;
+  const ex = { lev:3*W.level, age:(T.AA-20)*W.age, prod:(0.85-W.opsBase)*W.ops+(12-W.walkBase)*W.walk-(20-W.strikeoutBase)*W.strikeout, pos:hasPos ? 0.8*(PV.SS||0)+0.2*(PV["2B"]||0) : 0, boost:(F.consensus[0]||{boost:0}).boost };
+  const exTotal = ex.lev+ex.age+ex.prod+ex.pos+ex.boost;
+  const posOrder = ["C","SS","CF","2B","3B","LF","RF","1B","DH"].filter(k=>k in PV);
+  const posName = {C:"Catcher",SS:"Shortstop",CF:"Center field","2B":"Second base","3B":"Third base",LF:"Left field",RF:"Right field","1B":"First base",DH:"Designated hitter"};
+  const sgn = (v)=> (v>0?"+":v<0?"−":"")+Math.abs(v).toFixed(2);
   const levelName = {ROK:"Rookie",A:"Single-A","A+":"High-A",AA:"Double-A",AAA:"Triple-A"};
   return `<a class="back" href="#top100">← Back to rankings</a>
   <article class="method">
     <h2 class="sec">How the rankings work</h2>
     <p class="lede">The Top ${F.size||150} is sorted by a single score and recalculated every day from the latest stats. Every part of the formula is listed here, so anyone can check a ranking or argue with it.</p>
     <h3>The score</h3>
-    <p>Each player's score adds up four parts. Higher scores rank higher.</p>
+    <p>Each player's score adds up ${hasPos?"five":"four"} parts. Higher scores rank higher.</p>
     <ol>
       <li><b>Level.</b> The highest level he reached this season, times ${n(W.level)}: ${LV.map(([nm],i)=>`${nm} ${n(i*W.level)}`).join(", ")}.</li>
       <li><b>Age compared to level.</b> ${n(W.age)} points for every year he is younger than the typical age at that level, and minus ${n(W.age)} for every year older. Typical ages: ${LV.map(([nm,k])=>`${nm} ${T[k]}`).join(", ")}.</li>
@@ -571,18 +608,23 @@ function viewMethod(){
         <br><i>Hitters:</i> (OPS − ${ops3(W.opsBase)}) × ${n(W.ops)}, plus ${n(W.walk)} for each point of walk rate above ${n(W.walkBase)}%, minus ${n(W.strikeout)} for each point of strikeout rate above ${n(W.strikeoutBase)}%.
         <br><i>Pitchers:</i> (strikeout rate − walk rate − ${n(W.kbbBase)}) × ${n(W.kbb)}, plus (${(+W.eraBase).toFixed(2)} − ERA) × ${n(W.era)}, minus ${n(W.pitcherRisk)} for the extra injury and development risk pitchers carry.
         <br>Production counts in full at ${W.fullPA} plate appearances or ${W.fullIP} innings, and proportionally less below that, so small samples can't swing a ranking.</li>
+      ${hasPos ? `<li><b>Position.</b> Where a hitter plays, weighted by his share of games at each position this season. Teams only keep a player at shortstop, catcher or center field if he can handle it, so position is the best defensive signal available for every minor leaguer. Pitchers get no adjustment.
+        <table class="postbl"><tbody>${posOrder.map(k=>`<tr><td>${posName[k]}</td><td>${sgn(PV[k])}</td></tr>`).join("")}</tbody></table>
+        A player who plays 60% of his games at shortstop and 40% at second base gets ${n(0.6*(PV.SS||0))} + ${n(0.4*(PV["2B"]||0))} = ${sgn(0.6*(PV.SS||0)+0.4*(PV["2B"]||0))}.</li>` : ""}
       <li><b>Industry consensus.</b> ${F.consensus.map(c=>`+${n(c.boost)} for players on the ${esc(c.source)}`).join("; ")}. A player gets the boost from the strongest list he's on. These lists decide who is considered; our formula decides the order.</li>
     </ol>
-    <div class="example"><b>Example:</b> a 20-year-old at Double-A with an .850 OPS, 12% walk rate, 20% strikeout rate and ${W.fullPA}+ plate appearances, on the ${esc((F.consensus[0]||{}).label||"top")}, scores ${ex.lev.toFixed(2)} + ${ex.age.toFixed(2)} + ${ex.prod.toFixed(2)} + ${ex.boost.toFixed(2)} = <b>${exTotal.toFixed(2)}</b>.</div>
+    <div class="example"><b>Example:</b> a 20-year-old at Double-A with an .850 OPS, 12% walk rate, 20% strikeout rate and ${W.fullPA}+ plate appearances${hasPos?", playing 80% shortstop and 20% second base":""}, on the ${esc((F.consensus[0]||{}).label||"top")}, scores ${ex.lev.toFixed(2)} + ${ex.age.toFixed(2)} + ${ex.prod.toFixed(2)}${hasPos?` + ${ex.pos.toFixed(2)}`:""} + ${ex.boost.toFixed(2)} = <b>${exTotal.toFixed(2)}</b>.</div>
     <h3>Who's eligible</h3>
     <p>Players on any of those lists who are still prospects (no more than ${E.rookieAB} MLB at-bats or ${E.rookieIP} MLB innings) and played in the affiliated minors. Also eligible: any player ${E.maxAge} or younger who reached ${E.levels.map(l=>levelName[l]||l).join(" or ")} with at least ${E.minPA} plate appearances or ${E.minIP} innings, so breakout players who aren't on industry lists still get a shot. Players who pass the rookie limits drop off automatically.${(F.guarantee||[]).length ? ` Every player on the ${esc(F.guarantee.map(g=>{const c=F.consensus.find(x=>x.label===g); return c ? c.source : g;}).join(" and "))} is guaranteed a spot in the Top ${F.size||100}; the formula still decides where he ranks.` : ""}</p>
     <h3>When it updates</h3>
     <p>Scores are recalculated every day. Movement arrows compare each player's rank to the previous day's list. In April and May, the formula uses the previous season's full stats, because early-season samples are too small to rank on; from June on it uses the current season.${DATA.formula?.rankSeason ? ` The current list uses ${DATA.formula.rankSeason} stats and was last calculated ${esc(DATA.formula.calculated)}.` : ""}</p>
     <h3>Farm system rankings</h3>
     <p>Organizations are ranked by how many of their players are in the Top ${F.size||150}. When two systems have the same number, the one whose prospects rank higher wins: the #1 prospect is worth ${F.size||150} points, #2 is worth ${(F.size||150)-1}, and so on. Farm rankings update every time the list does. <a href="#farm">See the farm system rankings</a>.</p>
+    <h3>Team Top 20 lists</h3>
+    <p>Each organization's Top 20 uses the same score. A team's players in the Top ${F.size||150} come first, in their overall order; the rest of the list is the team's next-best prospects by score, any level, ${E.teamMaxAge ?? 25} or younger, with at least ${E.teamMinPA ?? 100} plate appearances or ${E.teamMinIP ?? 30} innings unless they're on an industry list.</p>
     <h3>What the formula leaves out</h3>
     <ul>
-      <li>Defense and position. A shortstop and a first baseman with the same bat score the same.</li>
+      <li>${hasPos ? "How well a player defends. The position adjustment credits where he plays, not how well he plays there; detailed defensive metrics aren't published for the minors." : "Defense and position. A shortstop and a first baseman with the same bat score the same."}</li>
       <li>Scouting grades, such as bat speed, raw power or velocity.</li>
       <li>Injuries. A player who missed time simply has a smaller sample.</li>
     </ul>
@@ -602,9 +644,10 @@ function render(){
   else if (h === "wire") html = viewWire();
   else if (h === "players") html = viewPlayers();
   else if (h === "farm") html = viewFarm();
+  else if (h.startsWith("t-")) { html = viewTeam(h.slice(2)); nav = "farm"; }
   else if (h === "method") { html = viewMethod(); nav = "top100"; }
   else { html = viewTop(); nav = "top100"; }
-  const free = h==="top100" || h==="" || h==="method" || h==="farm" || (h.startsWith("p-") && (DATA.rankings||[]).some(r=>String(r.id)===h.slice(2) && r.rank<=FREE_RANKS));
+  const free = h==="top100" || h==="" || h==="method" || h==="farm" || h.startsWith("t-") || (h.startsWith("p-") && (DATA.rankings||[]).some(r=>String(r.id)===h.slice(2) && r.rank<=FREE_RANKS));
   if (!unlocked && !free) {
     const label = h==="wire" ? "The transaction wire" : h==="players" ? "The players directory" : "This player page";
     html = gateHtml(label);
@@ -621,6 +664,7 @@ function bind(){
   if (o) o.addEventListener("change", e=>{ filt.org=e.target.value; render(); });
   if (k) k.addEventListener("change", e=>{ filt.kind=e.target.value; render(); });
   if (rk) rk.addEventListener("change", e=>{ wireRankedOnly=e.target.checked; render(); });
+  const tp=$("#team-pick"); if (tp) tp.addEventListener("change", e=>{ location.hash = "t-"+e.target.value; });
   const dq=$("#d-q");
   if (dq) dq.addEventListener("input", e=>{ dir.q=e.target.value; dir.show=100; const pos=e.target.selectionStart; render(); const n=$("#d-q"); n.focus(); n.setSelectionRange(pos,pos); });
   const dk=$("#d-kind");
