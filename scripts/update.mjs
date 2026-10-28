@@ -1,4 +1,4 @@
-// Prospect Ledger data updater.
+// MiLB Report data updater.
 // Reads rankings.csv, pulls bios, stats and transactions from MLB's public Stats API,
 // and writes site/data/site.json for the website to read.
 // Run: node scripts/update.mjs   (Node 20+, no packages needed)
@@ -339,9 +339,121 @@ async function loadTransactions(teams, rankedIds) {
   return out;
 }
 
+// ---------- automatic rankings ----------
+const CONFIG_FILE = process.env.RANK_CONFIG || "ranking-config.json";
+const NOTES_FILE = process.env.NOTES || "player-notes.csv";
+const LEVEL_NAMES = { ROK: "Rookie", A: "Single-A", "A+": "High-A", AA: "Double-A", AAA: "Triple-A" };
+const MILB_ORDER = ["ROK", "A", "A+", "AA", "AAA"];
+
+function publicFormula(cfg) {
+  return { weights: cfg.weights, typicalAge: cfg.typicalAge, eligibility: cfg.eligibility, size: cfg.size,
+    consensus: (cfg.consensus || []).map((c) => ({ label: c.label, source: c.source, boost: c.boost })) };
+}
+
+function scorePlayer(p, cons, cfg) {
+  const W = cfg.weights, T = cfg.typicalAge;
+  const levels = p.byLevel.map((b) => b.level).filter((l) => MILB_ORDER.includes(l)).sort((a, b) => MILB_ORDER.indexOf(a) - MILB_ORDER.indexOf(b));
+  const top = levels[levels.length - 1];
+  if (!top) return null;
+  const pitcher = p.pos === "P";
+  const own = p.byLevel.filter((b) => b.group === (pitcher ? "pitching" : "hitting"));
+  if (!own.length) return null;
+  const L = own.length > 1 ? (p.total || own[own.length - 1].line) : own[0].line;
+  const age = p.age ?? 22;
+  const lev = MILB_ORDER.indexOf(top) * W.level;
+  const ag = (T[top] - age) * W.age;
+  let prod;
+  if (!pitcher) {
+    const ops = (parseFloat(L.obp) || 0) + (parseFloat(L.slg) || 0);
+    prod = ((ops - W.opsBase) * W.ops + ((L.bbPct ?? W.walkBase) - W.walkBase) * W.walk - ((L.kPct ?? W.strikeoutBase) - W.strikeoutBase) * W.strikeout)
+      * Math.min(1, (L.pa || 0) / W.fullPA);
+  } else {
+    const ip = ipToOuts(L.ip) / 3;
+    prod = (((L.kPct ?? 22) - (L.bbPct ?? 9) - W.kbbBase) * W.kbb + (W.eraBase - (parseFloat(L.era) || 4.5)) * W.era) * Math.min(1, ip / W.fullIP) - W.pitcherRisk;
+  }
+  const boost = cons ? cons.boost : 0;
+  const sg = (v) => (v >= 0 ? "+" : "\u2212") + Math.abs(v).toFixed(2);
+  return {
+    score: lev + ag + prod + boost, top, pitcher, L,
+    detail: `Level ${lev.toFixed(2)} (${LEVEL_NAMES[top]}) \u00b7 Age ${sg(ag)} \u00b7 Production ${sg(prod)} \u00b7 Consensus ${sg(boost)} (${cons ? cons.label : "not on a list"})`,
+  };
+}
+
+async function rookieStatus(ids, cache) {
+  const today = isoDate(TODAY);
+  for (const id of ids) {
+    if (cache[id]?.d === today) continue;
+    try {
+      const s = await get(`/people/${id}/stats?stats=career&group=hitting,pitching&sportId=1`);
+      let ab = 0, ip = 0;
+      for (const b of s.stats || []) {
+        const st = b.splits?.[0]?.stat; if (!st) continue;
+        if (b.group?.displayName === "hitting") ab = st.atBats || 0; else ip = ipToOuts(st.inningsPitched) / 3;
+      }
+      cache[id] = { ab, ip: Math.round(ip * 10) / 10, d: today };
+    } catch (e) { warn(`Rookie check failed for ${id}: ${e.message}`); }
+  }
+}
+
+async function autoRank(cfg, pool, notes) {
+  const E = cfg.eligibility;
+  const byName = new Map();
+  for (const p of Object.values(pool)) { const k = norm(p.name); byName.set(k, [...(byName.get(k) || []), p]); }
+  const overrides = Object.fromEntries(Object.entries(cfg.playerIds || {}).map(([n, id]) => [norm(n), id]));
+  // Consensus lists: a player gets the boost of the strongest list he's on
+  const consOf = new Map();
+  for (const c of cfg.consensus || []) {
+    for (const n of c.names || []) {
+      const k = norm(n);
+      let p = overrides[k] ? pool[overrides[k]] : null;
+      if (!p) { const m = byName.get(k) || byName.get(k.replace(/ (jr|ii|iii)$/, "")); if (m && m.length === 1) p = m[0]; else if (m && m.length > 1) { warn(`"${n}" matches ${m.length} players; add it to playerIds in ${CONFIG_FILE}.`); p = null; } }
+      if (!p) continue;
+      const prev = consOf.get(p.id);
+      if (!prev || prev.boost < c.boost) consOf.set(p.id, c);
+    }
+  }
+  // Candidates: anyone on a list, plus young players producing at the upper levels
+  const cands = [];
+  for (const p of Object.values(pool)) {
+    const cons = consOf.get(p.id) || null;
+    const sc = scorePlayer(p, cons, cfg);
+    if (!sc) continue;
+    if (!cons) {
+      if ((p.age ?? 99) > E.maxAge || !E.levels.includes(sc.top)) continue;
+      if (sc.pitcher ? ipToOuts(sc.L.ip) / 3 < E.minIP : (sc.L.pa || 0) < E.minPA) continue;
+    }
+    cands.push({ p, cons, ...sc });
+  }
+  cands.sort((a, b) => b.score - a.score);
+  // Drop anyone past rookie limits, checking only as far down the list as needed
+  const statusFile = path.join(OUT_DIR, "rookie-status.json");
+  const status = await readJson(statusFile, {});
+  const out = [];
+  for (let i = 0; i < cands.length && out.length < cfg.size; i += 40) {
+    const chunk = cands.slice(i, i + 40);
+    await rookieStatus(chunk.map((c) => c.p.id), status);
+    for (const c of chunk) {
+      const st = status[c.p.id];
+      if (st && (st.ab > E.rookieAB || st.ip > E.rookieIP)) continue;
+      if (out.length < cfg.size) out.push(c);
+    }
+  }
+  await fs.writeFile(statusFile, JSON.stringify(status));
+  const noteBy = new Map();
+  for (const n of notes) { const id = parseInt(n.mlb_id, 10); noteBy.set(id ? `id:${id}` : `nm:${norm(n.name || "")}`, n); }
+  return out.map((c, i) => {
+    const n = noteBy.get(`id:${c.p.id}`) || noteBy.get(`nm:${norm(c.p.name)}`) || {};
+    return { rank: i + 1, name: c.p.name, id: c.p.id, fv: n.fv || "", eta: n.eta || "", blurb: n.blurb || "", score: c.score.toFixed(2), scoreDetail: c.detail };
+  });
+}
+
 // ---------- main ----------
 async function main() {
-  const season = TODAY.getUTCMonth() >= 2 ? TODAY.getUTCFullYear() : TODAY.getUTCFullYear() - 1;
+  // The minor league season starts in April. Before then, "this season" means last year's.
+  const month = TODAY.getUTCMonth();
+  const season = month >= 3 ? TODAY.getUTCFullYear() : TODAY.getUTCFullYear() - 1;
+  // Rankings use last season's full stats in April and May, until samples are big enough
+  const rankSeason = month >= 3 && month < 5 ? season - 1 : season;
   await fs.mkdir(OUT_DIR, { recursive: true });
   const outFile = path.join(OUT_DIR, "site.json");
   const idCacheFile = path.join(OUT_DIR, "player-ids.json");
@@ -369,9 +481,28 @@ async function main() {
     nameIndex.set(k, [...(nameIndex.get(k) || []), p.id]);
   }
 
-  // Rankings
-  const rows = parseCsv(await fs.readFile(RANKINGS_FILE, "utf8").catch(() => ""));
-  const ranked = [];
+  // Rankings: automatic (formula) or manual (rankings.csv)
+  const cfg = await readJson(CONFIG_FILE, null);
+  let ranked = [];
+  let formulaInfo = null;
+  if (cfg?.auto) {
+    let pool = allMilb;
+    if (pool && rankSeason !== season) {
+      try { pool = await loadAllMilb(rankSeason, teams); log(`Ranking on ${rankSeason} stats (${Object.keys(pool).length} players)`); }
+      catch (e) { warn(`Could not load ${rankSeason} stats for ranking: ${e.message}`); pool = null; }
+    }
+    if (pool) {
+      const notes = parseCsv(await fs.readFile(NOTES_FILE, "utf8").catch(() => ""));
+      ranked = await autoRank(cfg, pool, notes);
+      formulaInfo = { ...publicFormula(cfg), rankSeason, calculated: isoDate(TODAY) };
+      log(`Auto-ranked ${ranked.length} players from the formula`);
+    } else {
+      warn("No stats to rank with; keeping yesterday's Top 100.");
+      ranked = (previous.rankings || []).map((r) => ({ rank: r.rank, name: r.name, id: r.id, fv: r.fv, eta: r.eta, blurb: r.blurb, score: r.score, scoreDetail: r.scoreDetail }));
+      formulaInfo = previous.formula || null;
+    }
+  }
+  const rows = cfg?.auto ? [] : parseCsv(await fs.readFile(RANKINGS_FILE, "utf8").catch(() => ""));
   for (const r of rows) {
     const rank = parseInt(r.rank, 10);
     if (!r.name || !rank) continue;
@@ -382,7 +513,7 @@ async function main() {
     ranked.push({ rank, name: r.name, id, fv: r.fv || "", eta: r.eta || "", blurb: r.blurb || "", score: r.score || "", scoreDetail: r.score_detail || "" });
   }
   ranked.sort((a, b) => a.rank - b.rank);
-  log(`${ranked.length} ranked players in ${RANKINGS_FILE}`);
+  if (!cfg?.auto) log(`${ranked.length} ranked players in ${RANKINGS_FILE}`);
 
   // Players
   const players = {};
@@ -395,13 +526,17 @@ async function main() {
     }
   }
 
-  // Rankings history: save a snapshot whenever the list changes
+  // Rankings history: one snapshot per day (the last list of the day). Movement compares to the previous day.
+  const today = isoDate(TODAY);
   const snap = Object.fromEntries(ranked.filter((r) => r.id).map((r) => [r.id, r.rank]));
   const last = history[history.length - 1];
-  if (!last || JSON.stringify(last.ranks) !== JSON.stringify(snap)) {
-    if (ranked.length) history.push({ date: isoDate(TODAY), ranks: snap });
+  if (ranked.length) {
+    if (last && last.date === today) last.ranks = snap;
+    else history.push({ date: today, ranks: snap });
   }
-  const prevSnap = history.length >= 2 ? history[history.length - 2].ranks : null;
+  while (history.length > 400) history.shift();
+  const prevEntry = [...history].reverse().find((h) => h.date < today);
+  const prevSnap = prevEntry ? prevEntry.ranks : null;
 
   // Transactions: merge new with the stored wire, drop anything too old
   const rankedIds = new Set(ranked.map((r) => r.id).filter(Boolean));
@@ -424,7 +559,7 @@ async function main() {
     };
   });
 
-  const site = { updated: new Date().toISOString(), season, rankings, players, transactions };
+  const site = { updated: new Date().toISOString(), season, rankMode: cfg?.auto ? "auto" : "manual", formula: formulaInfo, rankings, players, transactions };
   await fs.writeFile(outFile, JSON.stringify(site));
   if (allMilb) {
     // Drop the raw counts that were only needed for combining lines, to keep the file small
