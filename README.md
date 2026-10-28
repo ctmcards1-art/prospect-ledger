@@ -1,10 +1,12 @@
 # MiLB Report
 
-Prospect rankings plus a daily minor league transaction wire. Stats and transactions come from MLB's public Stats API and refresh automatically. You only edit one file: `rankings.csv`.
+Prospect rankings plus a daily minor league transaction wire. Stats, transactions and the Top 100 itself refresh automatically from MLB's public Stats API.
 
 ## How it works
 
-- `rankings.csv` holds your rankings, grades and write-ups.
+- `ranking-config.json` holds the ranking formula's settings and the industry lists used for the consensus boost.
+- `player-notes.csv` holds your optional notes per player (Future Value grade, ETA, write-up).
+- `rankings.csv` is only used if automatic ranking is turned off.
 - `scripts/update.mjs` reads your rankings, looks up each player on MLB's Stats API, pulls his stats by level and recent transactions, and writes `site/data/site.json`.
 - The updater also pulls every player who appeared at an affiliated minor league level this season (several thousand) into `site/data/players.json`, using a handful of bulk calls per level.
 - `site/index.html` is the website. It shows the Top 100, a searchable and sortable **Players** directory of every minor leaguer, the Transaction Wire, and a page for each player. Ranked prospects get full career stats; everyone else gets the current season by level.
@@ -27,6 +29,18 @@ Open `rankings.csv` on GitHub, click the pencil icon, edit, and **Commit changes
 - If the update log warns that a name matched more than one player, add the `mlb_id` column: the number at the end of the player's MLB.com URL.
 - `fv` (20-80 Future Value), `eta` and `blurb` are optional.
 - Every time the list changes, the site saves a snapshot, and the Top 100 shows each player's movement since the previous version.
+
+## Automatic Top 100
+
+With `"auto": true` in `ranking-config.json`, every update scores every eligible player with the formula and rebuilds the Top 100. The "How the rankings work" page on the site reads the same settings, so it always matches.
+
+- **Daily movement.** The site keeps one snapshot per day; arrows show the change from the previous day.
+- **Graduations.** Players past the rookie limits (`rookieAB`, `rookieIP`) drop off automatically.
+- **Early season.** In April and May the formula uses the previous season's stats; from June on it uses the current season.
+- **Industry lists.** `consensus` holds the lists that give a boost, each with a `label`, `source`, `boost` and `names`. When a new list comes out, add it (for example a 2027 preseason list) and lower or remove the older ones. If a name matches more than one player, add it to `playerIds` with the player's MLB ID.
+- **Weights and eligibility.** Change any number under `weights`, `typicalAge` or `eligibility` and the next update uses it.
+- **Your notes.** Add Future Value grades, ETAs and write-ups in `player-notes.csv`. They follow the player wherever he ranks.
+- **Ranking by hand instead.** Set `"auto": false` and the site goes back to the order in `rankings.csv`.
 
 ## Checking that it's running
 

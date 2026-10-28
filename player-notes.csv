@@ -1,0 +1,8 @@
+# MILB REPORT PLAYER NOTES. Optional scouting notes shown on the Top 100 and player pages.
+# The Top 100 order is set by the formula every day; this file only adds your notes.
+# One player per line. Use mlb_id (the number in the player's MLB.com URL) or the full name.
+# fv = Future Value grade on the 20-80 scale, eta = expected MLB arrival year, blurb = short write-up (wrap in "double quotes" if it has commas)
+#
+# Example (delete the # to use it):
+# 808265,Franklin Arias,60,2027,"Plus hit tool, smooth at short, already handling Triple-A at 20."
+mlb_id,name,fv,eta,blurb
