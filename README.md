@@ -42,6 +42,10 @@ With `"auto": true` in `ranking-config.json`, every update scores every eligible
 - **Your notes.** Add Future Value grades, ETAs and write-ups in `player-notes.csv`. They follow the player wherever he ranks.
 - **Ranking by hand instead.** Set `"auto": false` and the site goes back to the order in `rankings.csv`.
 
+## Farm system rankings
+
+Every update also ranks all 30 organizations by how many players they have in the Top 150, with ties going to the system whose players rank higher (#1 = 150 points, #150 = 1 point). The **Farm Systems** page shows each team's count, how many are in the top 10 and top 50, daily movement, and its ranked prospects. The standings are free to view; the full list of each team's prospects is for subscribers. History is kept in `site/data/farm-history.json`.
+
 ## Checking that it's running
 
 The **Actions** tab lists every run. A green check means the data updated. A red X means something failed; click it to see the log. If a run fails, the site keeps showing the last good data.
