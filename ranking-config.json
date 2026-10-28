@@ -39,20 +39,10 @@
   "AAA": 24
  },
  "eligibility": {
-  "maxAge": 21,
-  "levels": [
-   "A",
-   "A+",
-   "AA",
-   "AAA"
-  ],
-  "minPA": 250,
-  "minIP": 60,
+  "minPA": 100,
+  "minIP": 30,
   "rookieAB": 130,
-  "rookieIP": 50,
-  "teamMaxAge": 25,
-  "teamMinPA": 100,
-  "teamMinIP": 30
+  "rookieIP": 50
  },
  "consensus": [
   {

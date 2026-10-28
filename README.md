@@ -42,6 +42,10 @@ With `"auto": true` in `ranking-config.json`, every update scores every eligible
 - **Your notes.** Add Future Value grades, ETAs and write-ups in `player-notes.csv`. They follow the player wherever he ranks.
 - **Ranking by hand instead.** Set `"auto": false` and the site goes back to the order in `rankings.csv`.
 
+## Who gets scored
+
+Every player in affiliated minor league baseball is scored, at every level and age. Players are skipped only if they've graduated (more than `rookieAB` MLB at-bats or `rookieIP` MLB innings) or have fewer than `minPA` plate appearances / `minIP` innings, unless they're on an industry list. Players who barely played this season are scored on the previous season if it was a full one. Optional filters `maxAge` and `levels` can be added under `eligibility` to narrow the pool.
+
 ## Farm system rankings
 
 Every update also ranks all 30 organizations by how many players they have in the Top 150, with ties going to the system whose players rank higher (#1 = 150 points, #150 = 1 point). The **Farm Systems** page shows each team's count, how many are in the top 10 and top 50, daily movement, and its ranked prospects. The standings are free to view; the full list of each team's prospects is for subscribers. History is kept in `site/data/farm-history.json`.
@@ -52,7 +56,7 @@ The formula includes a fifth part for hitters: where they play. Each update pull
 
 ## Team Top 20 lists
 
-Every update also builds a Top 20 for each organization with the same score (`teamSize` in `ranking-config.json`). A team's players in the Top 150 come first in their overall order; the rest are the team's next-best prospects at any level, age 25 or younger (`eligibility.teamMaxAge`), with at least 100 PA or 30 IP (`teamMinPA`, `teamMinIP`) unless they're on an industry list. Graduated players are excluded. Each team's page is linked from the Farm Systems page. Free visitors see a team's #1; subscribers see all 20.
+Every update also builds a Top 20 for each organization with the same score (`teamSize` in `ranking-config.json`). A team's players in the Top 150 come first in their overall order; the rest are the team's next-best prospects by score, under the same rules as the Top 150. Each team's page is linked from the Farm Systems page. Free visitors see a team's #1; subscribers see all 20.
 
 ## Checking that it's running
 
