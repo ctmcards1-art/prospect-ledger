@@ -172,6 +172,28 @@ tr:last-child td{border-bottom:0}
 .keypanel p{margin:0 0 8px}
 .keypanel .err{color:var(--down);font-size:.8rem;margin:6px 0 0;min-height:1em}
 .lock-link{background:none;border:0;color:var(--muted);font-family:var(--f-data);font-size:.72rem;cursor:pointer;text-decoration:underline;padding:0}
+.farm-row{display:grid;grid-template-columns:56px 1fr;gap:4px 16px;padding:16px;border-bottom:1px solid var(--line)}
+.farm-row:last-child{border-bottom:0}
+.farm-rk .rk{display:block}
+.farm-name{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.farm-name .nm{font-weight:600;font-size:1.15rem}
+.farm-name .org{font-family:var(--f-data);font-size:.72rem;color:var(--muted);letter-spacing:.06em}
+.farm-bar{height:6px;background:var(--sunk);border-radius:3px;margin:8px 0 6px;max-width:420px;overflow:hidden}
+.farm-bar i{display:block;height:100%;background:var(--pine);border-radius:3px}
+.farm-meta{display:flex;flex-wrap:wrap;gap:4px 16px;font-family:var(--f-data);font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.farm-meta b{color:var(--ink);font-weight:500}
+.cdelta.up{color:var(--up)} .cdelta.down{color:var(--down)}
+.farm-players{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pchip{display:inline-flex;align-items:baseline;gap:6px;font-size:.85rem;text-decoration:none;background:var(--sunk);border:1px solid var(--line);border-radius:4px;padding:3px 8px}
+.pchip:hover{border-color:var(--pine)}
+.pchip b{font-family:var(--f-data);font-size:.72rem;font-weight:500;color:var(--pine)}
+.pchip span{font-family:var(--f-data);font-size:.68rem;color:var(--muted)}
+.farm-players .none,.locked-more{font-size:.85rem;color:var(--muted);align-self:center}
+.farm-signin{all:unset;cursor:pointer;color:var(--pine);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.farm-signin:focus-visible{outline:2px solid var(--flag);outline-offset:2px}
+.farm-note{color:var(--muted);font-size:.85rem;margin:12px 0 0;max-width:70ch}
+.farm-note a{color:var(--ink)}
+@media (max-width:640px){.farm-row{grid-template-columns:44px 1fr}}
 .empty{background:var(--surface);border:1px dashed var(--line);border-radius:4px;padding:28px 24px;color:var(--muted);max-width:70ch}
 .empty h3{font-family:var(--f-display);font-weight:800;text-transform:uppercase;color:var(--ink);margin:0 0 6px;font-size:1.4rem}
 .empty code{font-family:var(--f-data);font-size:.85em;background:var(--sunk);padding:1px 5px;border-radius:3px}
@@ -189,6 +211,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 32px;font-family:var(
       </div>
       <nav class="sections" aria-label="Sections">
         <a href="#top100" data-nav="top100" id="nav-top">Top 150</a>
+        <a href="#farm" data-nav="farm">Farm Systems</a>
         <a href="#players" data-nav="players">Players</a>
         <a href="#wire" data-nav="wire">Transaction Wire</a>
       </nav>
@@ -262,6 +285,7 @@ function gateHtml(what){
   </div>`;
 }
 function bindGate(){
+  document.querySelectorAll(".farm-signin").forEach(x=>x.addEventListener("click", ()=>{ $("#keypanel").hidden=false; $("#keybtn").setAttribute("aria-expanded","true"); $("#key-code").focus(); }));
   const b=$("#gate-signin");
   if (b) b.addEventListener("click", ()=>{ $("#keypanel").hidden=false; $("#keybtn").setAttribute("aria-expanded","true"); $("#key-code").focus(); });
 }
@@ -405,6 +429,41 @@ function viewPlayer(id){
   </article>`;
 }
 
+// ---------- Farm systems ----------
+function viewFarm(){
+  const F = DATA.farm || [];
+  const N = (DATA.rankings||[]).length || 150;
+  const head = `<div class="sec-head"><div><h2 class="sec">Farm System Rankings</h2><p>All 30 organizations, ranked by how many players they have in the Top ${N}. Ties go to the system whose prospects rank higher. Updates every time the Top ${N} does.</p></div></div>`;
+  if (!F.length) return head + `<div class="empty"><h3>Coming with the next update</h3><p>Farm system rankings fill in the next time the Top ${N} is calculated.</p></div>`;
+  const max = Math.max(...F.map(f=>f.count), 1);
+  const mv = (f)=>{
+    if (f.prevRank === undefined) return "";
+    if (f.prevRank === null) return `<span class="mv new">NEW</span>`;
+    const d = f.prevRank - f.rank;
+    if (!d) return `<span class="mv flat">—</span>`;
+    return `<span class="mv ${d>0?"up":"down"}">${d>0?"▲":"▼"} ${Math.abs(d)}</span>`;
+  };
+  const cd = (f)=> (f.prevCount==null || f.prevCount===f.count) ? "" : `<span class="cdelta ${f.count>f.prevCount?"up":"down"}">${f.count>f.prevCount?"+":"−"}${Math.abs(f.count-f.prevCount)} today</span>`;
+  const chip = (p)=> `<a class="pchip" href="#p-${p.id}"><b>#${p.rank}</b> ${esc(p.name)}<span>${esc(p.pos||"")}${p.level?` · ${esc(p.level)}`:""}</span></a>`;
+  const rows = F.map(f=>{
+    const best = f.players[0];
+    const list = !f.players.length ? `<span class="none">No players in the Top ${N}</span>`
+      : unlocked ? f.players.map(chip).join("")
+      : `${chip(best)}${f.players.length>1 ? `<span class="locked-more">+${f.players.length-1} more · <button type="button" class="signin farm-signin">Subscribers see the full list</button></span>` : ""}`;
+    return `<div class="farm-row" id="farm-${esc(f.org)}">
+      <div class="farm-rk"><span class="rk">${f.rank}</span>${mv(f)}</div>
+      <div class="farm-main">
+        <div class="farm-name"><span class="nm">${esc(f.name)}</span><span class="org">${esc(f.org)}</span></div>
+        <div class="farm-bar" aria-hidden="true"><i style="width:${(f.count/max*100).toFixed(1)}%"></i></div>
+        <div class="farm-meta"><span><b>${f.count}</b> in the Top ${N}</span>${f.top10?`<span><b>${f.top10}</b> in the top 10</span>`:""}<span><b>${f.top50}</b> in the top 50</span><span>${f.points} pts</span>${cd(f)}</div>
+        <div class="farm-players">${list}</div>
+      </div>
+    </div>`;
+  }).join("");
+  return head + `<div class="ledger farm">${rows}</div>
+  <p class="farm-note">Points break ties: the #1 prospect is worth ${N} points, #2 is worth ${N-1}, and so on down to 1 point for #${N}. <a href="#method">How players are ranked</a>.</p>`;
+}
+
 // ---------- Players directory ----------
 const HCOLS = [["pa","PA"],["avg","AVG"],["obp","OBP"],["slg","SLG"],["hr","HR"],["sb","SB"],["kPct","K%"],["bbPct","BB%"]];
 const PCOLS = [["ip","IP"],["era","ERA"],["whip","WHIP"],["so","SO"],["kPct","K%"],["bbPct","BB%"]];
@@ -519,6 +578,8 @@ function viewMethod(){
     <p>Players on any of those lists who are still prospects (no more than ${E.rookieAB} MLB at-bats or ${E.rookieIP} MLB innings) and played in the affiliated minors. Also eligible: any player ${E.maxAge} or younger who reached ${E.levels.map(l=>levelName[l]||l).join(" or ")} with at least ${E.minPA} plate appearances or ${E.minIP} innings, so breakout players who aren't on industry lists still get a shot. Players who pass the rookie limits drop off automatically.${(F.guarantee||[]).length ? ` Every player on the ${esc(F.guarantee.map(g=>{const c=F.consensus.find(x=>x.label===g); return c ? c.source : g;}).join(" and "))} is guaranteed a spot in the Top ${F.size||100}; the formula still decides where he ranks.` : ""}</p>
     <h3>When it updates</h3>
     <p>Scores are recalculated every day. Movement arrows compare each player's rank to the previous day's list. In April and May, the formula uses the previous season's full stats, because early-season samples are too small to rank on; from June on it uses the current season.${DATA.formula?.rankSeason ? ` The current list uses ${DATA.formula.rankSeason} stats and was last calculated ${esc(DATA.formula.calculated)}.` : ""}</p>
+    <h3>Farm system rankings</h3>
+    <p>Organizations are ranked by how many of their players are in the Top ${F.size||150}. When two systems have the same number, the one whose prospects rank higher wins: the #1 prospect is worth ${F.size||150} points, #2 is worth ${(F.size||150)-1}, and so on. Farm rankings update every time the list does. <a href="#farm">See the farm system rankings</a>.</p>
     <h3>What the formula leaves out</h3>
     <ul>
       <li>Defense and position. A shortstop and a first baseman with the same bat score the same.</li>
@@ -540,9 +601,10 @@ function render(){
   }
   else if (h === "wire") html = viewWire();
   else if (h === "players") html = viewPlayers();
+  else if (h === "farm") html = viewFarm();
   else if (h === "method") { html = viewMethod(); nav = "top100"; }
   else { html = viewTop(); nav = "top100"; }
-  const free = h==="top100" || h==="" || h==="method" || (h.startsWith("p-") && (DATA.rankings||[]).some(r=>String(r.id)===h.slice(2) && r.rank<=FREE_RANKS));
+  const free = h==="top100" || h==="" || h==="method" || h==="farm" || (h.startsWith("p-") && (DATA.rankings||[]).some(r=>String(r.id)===h.slice(2) && r.rank<=FREE_RANKS));
   if (!unlocked && !free) {
     const label = h==="wire" ? "The transaction wire" : h==="players" ? "The players directory" : "This player page";
     html = gateHtml(label);
