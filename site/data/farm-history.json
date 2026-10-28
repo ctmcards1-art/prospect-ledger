@@ -4,7 +4,7 @@
   "orgs": {
    "STL": {
     "rank": 1,
-    "count": 11
+    "count": 10
    },
    "MIL": {
     "rank": 2,
@@ -14,19 +14,19 @@
     "rank": 3,
     "count": 9
    },
-   "SF": {
-    "rank": 4,
-    "count": 9
-   },
    "LAD": {
-    "rank": 5,
-    "count": 8
-   },
-   "MIN": {
-    "rank": 6,
+    "rank": 4,
     "count": 8
    },
    "BAL": {
+    "rank": 5,
+    "count": 8
+   },
+   "SF": {
+    "rank": 6,
+    "count": 8
+   },
+   "MIN": {
     "rank": 7,
     "count": 7
    },
@@ -42,11 +42,11 @@
     "rank": 10,
     "count": 6
    },
-   "COL": {
+   "MIA": {
     "rank": 11,
     "count": 6
    },
-   "MIA": {
+   "COL": {
     "rank": 12,
     "count": 6
    },
@@ -74,27 +74,27 @@
     "rank": 18,
     "count": 4
    },
-   "NYM": {
+   "ATH": {
     "rank": 19,
     "count": 4
    },
    "TEX": {
     "rank": 20,
-    "count": 3
+    "count": 4
+   },
+   "NYM": {
+    "rank": 21,
+    "count": 4
    },
    "SD": {
-    "rank": 21,
-    "count": 3
-   },
-   "CIN": {
     "rank": 22,
     "count": 3
    },
-   "ATH": {
+   "CHC": {
     "rank": 23,
     "count": 3
    },
-   "CWS": {
+   "CIN": {
     "rank": 24,
     "count": 3
    },
@@ -106,7 +106,7 @@
     "rank": 26,
     "count": 3
    },
-   "CHC": {
+   "CWS": {
     "rank": 27,
     "count": 2
    },
