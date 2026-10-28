@@ -1,7 +1,7 @@
 {
  "_readme": "Settings for the automatic Top 100. Set auto to false to rank by hand in rankings.csv instead. 'guarantee' lists the consensus lists whose players always make the Top 100 (still ordered by the formula). See README for the rest.",
  "auto": true,
- "size": 100,
+ "size": 150,
  "weights": {
   "level": 0.6,
   "age": 0.7,

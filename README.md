@@ -9,7 +9,7 @@ Prospect rankings plus a daily minor league transaction wire. Stats, transaction
 - `rankings.csv` is only used if automatic ranking is turned off.
 - `scripts/update.mjs` reads your rankings, looks up each player on MLB's Stats API, pulls his stats by level and recent transactions, and writes `site/data/site.json`.
 - The updater also pulls every player who appeared at an affiliated minor league level this season (several thousand) into `site/data/players.json`, using a handful of bulk calls per level.
-- `site/index.html` is the website. It shows the Top 100, a searchable and sortable **Players** directory of every minor leaguer, the Transaction Wire, and a page for each player. Ranked prospects get full career stats; everyone else gets the current season by level.
+- `site/index.html` is the website. It shows the Top 150, a searchable and sortable **Players** directory of every minor leaguer, the Transaction Wire, and a page for each player. Ranked prospects get full career stats; everyone else gets the current season by level. Players on an affiliated roster who haven't played yet (recent draftees, injured players) also get a page.
 - `.github/workflows/update.yml` runs the updater on a schedule (daily in the offseason, every 30 minutes April through September) and publishes the site to GitHub Pages. It also runs whenever you change a file.
 
 ## One-time setup (about 10 minutes)
@@ -30,9 +30,9 @@ Open `rankings.csv` on GitHub, click the pencil icon, edit, and **Commit changes
 - `fv` (20-80 Future Value), `eta` and `blurb` are optional.
 - Every time the list changes, the site saves a snapshot, and the Top 100 shows each player's movement since the previous version.
 
-## Automatic Top 100
+## Automatic Top 150
 
-With `"auto": true` in `ranking-config.json`, every update scores every eligible player with the formula and rebuilds the Top 100. The "How the rankings work" page on the site reads the same settings, so it always matches.
+With `"auto": true` in `ranking-config.json`, every update scores every eligible player with the formula and rebuilds the Top 150. The "How the rankings work" page on the site reads the same settings, so it always matches.
 
 - **Daily movement.** The site keeps one snapshot per day; arrows show the change from the previous day.
 - **Graduations.** Players past the rookie limits (`rookieAB`, `rookieIP`) drop off automatically.
