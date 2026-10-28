@@ -188,7 +188,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 32px;font-family:var(
         <div class="tag">Prospect rankings · Daily transaction wire</div>
       </div>
       <nav class="sections" aria-label="Sections">
-        <a href="#top100" data-nav="top100">Top 100</a>
+        <a href="#top100" data-nav="top100" id="nav-top">Top 150</a>
         <a href="#players" data-nav="players">Players</a>
         <a href="#wire" data-nav="wire">Transaction Wire</a>
       </nav>
@@ -255,7 +255,7 @@ function gateHtml(what){
   return `<div class="gate" id="gate">
     <h3>Subscribers only</h3>
     <p>${esc(what)} is part of a ${esc(SITE_NAME)} subscription.</p>
-    <ul><li>The full Top 100 with score breakdowns</li><li>A page for every minor leaguer</li><li>The daily transaction wire</li></ul>
+    <ul><li>The full Top ${(DATA.rankings||[]).length||150} with score breakdowns</li><li>A page for every minor leaguer</li><li>The daily transaction wire</li></ul>
     ${SUB_PRICE ? `<div class="price">${esc(SUB_PRICE)}</div>` : ""}
     ${SUBSCRIBE_URL ? `<a class="sub" href="${esc(SUBSCRIBE_URL)}" target="_blank" rel="noopener">Subscribe</a>` : `<span class="soon">Subscriptions open soon</span>`}
     <p class="hint">Already subscribed? <button type="button" class="signin" id="gate-signin">Sign in</button></p>
@@ -317,7 +317,7 @@ function viewTop(){
   const list = R.filter(r=>(!filt.org||r.org===filt.org)
     && (!filt.kind || (filt.kind==="P" ? r.pos==="P" : r.pos!=="P"))
     && (!q || r.name.toLowerCase().includes(q) || (r.orgName||"").toLowerCase().includes(q)));
-  const top = R.length>=100 ? "Top 100" : `Top ${R.length}`;
+  const top = `Top ${R.length}`;
   return `<div class="sec-head">
     <div><h2 class="sec">${top} Prospects</h2><p>Ranked every day by a published formula built on level, age and production. <a href="#method">How the rankings work</a>. Arrows show movement since the last update.</p></div>
     <div class="filters">
@@ -346,6 +346,7 @@ function emptyRankings(){
 
 // ---------- Wire ----------
 function viewWire(){
+  if (!ALL) loadAll();
   const rankOf = Object.fromEntries((DATA.rankings||[]).filter(r=>r.id).map(r=>[r.id,r.rank]));
   let tx = DATA.transactions || [];
   if (wireRankedOnly) tx = tx.filter(t=>rankOf[t.playerId]);
@@ -360,7 +361,8 @@ function viewWire(){
     const rk = rankOf[t.playerId];
     const kindCls = "k-"+t.type.split(/[ /]/)[0];
     const path = (t.from&&t.to&&t.from.level&&t.to.level) ? `${esc(t.from.org||"")} ${esc(t.from.level)} → ${esc(t.to.level)}` : (t.to?.org?`${esc(t.to.org)} ${esc(t.to.level||"")}`:"");
-    const name = rk ? `<a href="#p-${t.playerId}">${esc(t.player)}</a>` : esc(t.player);
+    const hasPage = rk || (ALL && ALL.players && ALL.players[t.playerId]);
+    const name = hasPage ? `<a href="#p-${t.playerId}">${esc(t.player)}</a>` : esc(t.player);
     return `<div class="tx"><span class="kind ${kindCls}">${esc(t.type)}</span><div class="what">${rk?`<span class="rkbadge">#${rk}</span>`:""}<span class="pl">${name}</span><span class="path">${path}</span><span class="desc">${esc(t.description)}</span></div></div>`;
   }).join("")}</section>`).join("");
 }
@@ -478,8 +480,8 @@ function viewIndexPlayer(id){
     <div class="card-body">
       <div class="facts"><div class="fact"><div class="k">Current level</div><div class="v">${esc(p.level||"—")}</div></div><div class="fact"><div class="k">Ranked</div><div class="v">No</div></div></div>
       <div><h4>${esc(ALL.season)} levels</h4><div class="ladder">${LEVELS.map(l=>`<div class="rung${reached.includes(l)?" reached":""}${p.level===l?" now":""}">${l}</div>`).join("")}</div></div>
-      <div><h4>${esc(ALL.season)} season</h4><div class="tbl"><table>${table}</table></div>
-        <p style="color:var(--muted);font-size:.85rem;margin:8px 0 0">Full career stats are kept for ranked prospects. This page shows the current season.</p></div>
+      <div><h4>${esc(ALL.season)} season</h4>${rows.length ? `<div class="tbl"><table>${table}</table></div>
+        <p style="color:var(--muted);font-size:.85rem;margin:8px 0 0">Full career stats are kept for ranked prospects. This page shows the current season.</p>` : `<div class="empty">No ${esc(ALL.season)} game stats yet. He's on an affiliated roster but hasn't played this season, for example a recent draftee or a player on the injured list.</div>`}</div>
       ${moves.length?`<div><h4>Recent moves</h4>${moves.map(t=>`<div class="tx"><span class="kind k-${t.type.split(/[ /]/)[0]}">${esc(t.type)}</span><div class="what"><span class="pl">${fmtDay(t.date)}</span><span class="desc">${esc(t.description)}</span></div></div>`).join("")}</div>`:""}
     </div>
   </article>`;
@@ -500,7 +502,7 @@ function viewMethod(){
   return `<a class="back" href="#top100">← Back to rankings</a>
   <article class="method">
     <h2 class="sec">How the rankings work</h2>
-    <p class="lede">The Top 100 is sorted by a single score and recalculated every day from the latest stats. Every part of the formula is listed here, so anyone can check a ranking or argue with it.</p>
+    <p class="lede">The Top ${F.size||150} is sorted by a single score and recalculated every day from the latest stats. Every part of the formula is listed here, so anyone can check a ranking or argue with it.</p>
     <h3>The score</h3>
     <p>Each player's score adds up four parts. Higher scores rank higher.</p>
     <ol>
@@ -593,6 +595,7 @@ fetch("data/site.json", {cache:"no-cache"})
     const up = new Date(d.updated);
     $("#dl-left").textContent = `Updated ${up.toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}`;
     $("#dl-right").textContent = `${d.season} season · ${(d.rankings||[]).length} ranked · ${(d.transactions||[]).length} moves on the wire`;
+    if ((d.rankings||[]).length) $("#nav-top").textContent = `Top ${d.rankings.length}`;
     if (d.preview) { const n=$("#preview-note"); n.textContent=d.preview; n.hidden=false; }
     render();
   })
