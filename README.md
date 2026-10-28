@@ -44,7 +44,11 @@ With `"auto": true` in `ranking-config.json`, every update scores every eligible
 
 ## Who gets scored
 
-Every player in affiliated minor league baseball is scored, at every level and age. Players are skipped only if they've graduated (more than `rookieAB` MLB at-bats or `rookieIP` MLB innings) or have fewer than `minPA` plate appearances / `minIP` innings, unless they're on an industry list. Players who barely played this season are scored on the previous season if it was a full one. Optional filters `maxAge` and `levels` can be added under `eligibility` to narrow the pool.
+Every player in affiliated minor league baseball is scored, at every level and age. Players are skipped only if they've graduated (more than `rookieAB` MLB at-bats or `rookieIP` MLB innings) or haven't qualified at any level, unless they're on an industry list.
+
+- **Qualifying at a level.** A level counts only if the player has at least `minAB` at-bats (hitters, default 25) or `minIP` innings (pitchers, default 5) there. A short call-up or rehab stint doesn't earn credit for the higher level; he's credited at the highest level where he qualified.
+- **Injured players.** If this season's sample is under `fallbackPA` plate appearances / `fallbackIP` innings (defaults 100 and 30) and last season's was bigger, last season's stats are used.
+- Optional filters `maxAge` and `levels` can be added under `eligibility` to narrow the pool.
 
 ## Farm system rankings
 
