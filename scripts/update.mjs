@@ -163,6 +163,13 @@ async function bulkStats(season, sportId, group) {
   return out;
 }
 
+function positionShares(games) {
+  if (!games) return null;
+  const tot = Object.values(games).reduce((a, b) => a + b, 0);
+  if (!tot) return null;
+  return Object.fromEntries(Object.entries(games).filter(([, g]) => g > 0).sort((a, b) => b[1] - a[1]).map(([k, g]) => [k, Math.round((g / tot) * 100) / 100]));
+}
+
 async function loadAllMilb(season, teams) {
   // key: playerId -> { group -> { level -> [splits] } }
   const raw = new Map();
@@ -178,6 +185,20 @@ async function loadAllMilb(season, teams) {
         (r[group][LEVELS[sportId]] ||= []).push(sp);
       }
     }
+  }
+  // Games at each position (for the position adjustment). Optional: rankings fall back to primary position.
+  const fieldGames = {};
+  for (const sportId of MILB_SPORTS) {
+    try {
+      const splits = await bulkStats(season, sportId, "fielding");
+      log(`  ${LEVELS[sportId]} fielding: ${splits.length} lines`);
+      for (const sp of splits) {
+        const id = sp.player?.id, ab = sp.position?.abbreviation;
+        if (!id || !ab || ab === "P") continue;
+        const f = (fieldGames[id] ||= {});
+        f[ab] = (f[ab] || 0) + (Number(sp.stat?.gamesPlayed) || 0);
+      }
+    } catch (e) { warn(`Fielding for ${LEVELS[sportId]} not loaded: ${e.message}`); }
   }
   // Bios in batches
   const ids = [...raw.keys()];
@@ -217,7 +238,7 @@ async function loadAllMilb(season, teams) {
       bats: bio.batSide?.code || "", throws: bio.pitchHand?.code || "",
       level: cur?.level || highest.level, team: cur?.name || highest.team.split(" / ").pop(),
       org: cur?.parentAbbr || highest.org, orgName: cur?.parentName || "",
-      season, total: combined, byLevel,
+      season, total: combined, byLevel, fld: isPitcher ? null : positionShares(fieldGames[id]),
     };
   }
   // Players on an affiliated roster who haven't played this season (recent draftees, injured players)
@@ -393,17 +414,26 @@ function scorePlayer(p, cons, cfg) {
     prod = (((L.kPct ?? 22) - (L.bbPct ?? 9) - W.kbbBase) * W.kbb + (W.eraBase - (parseFloat(L.era) || 4.5)) * W.era) * Math.min(1, ip / W.fullIP) - W.pitcherRisk;
   }
   const boost = cons ? cons.boost : 0;
+  // Position: weighted by share of games at each position; falls back to primary position
+  let posAdj = 0, posNote = "";
+  const PV = W.position || {};
+  if (!pitcher && Object.keys(PV).length) {
+    const shares = p.fld && Object.keys(p.fld).length ? p.fld : { [p.pos === "TWP" || p.pos === "Y" ? "DH" : p.pos]: 1 };
+    const tot = Object.values(shares).reduce((a, b) => a + b, 0) || 1;
+    for (const [k, v] of Object.entries(shares)) posAdj += (PV[k] ?? 0) * (v / tot);
+    posNote = Object.entries(shares).slice(0, 2).map(([k, v]) => `${k} ${Math.round((v / tot) * 100)}%`).join(", ");
+  }
   const sg = (v) => (v >= 0 ? "+" : "\u2212") + Math.abs(v).toFixed(2);
   return {
-    score: lev + ag + prod + boost, top, pitcher, L,
-    detail: `Level ${lev.toFixed(2)} (${LEVEL_NAMES[top]}) \u00b7 Age ${sg(ag)} \u00b7 Production ${sg(prod)} \u00b7 Consensus ${sg(boost)} (${cons ? cons.label : "not on a list"})`,
+    score: lev + ag + prod + posAdj + boost, top, pitcher, L,
+    detail: `Level ${lev.toFixed(2)} (${LEVEL_NAMES[top]}) \u00b7 Age ${sg(ag)} \u00b7 Production ${sg(prod)}${pitcher ? "" : ` \u00b7 Position ${sg(posAdj)} (${posNote})`} \u00b7 Consensus ${sg(boost)} (${cons ? cons.label : "not on a list"})`,
   };
 }
 
 async function rookieStatus(ids, cache) {
   const today = isoDate(TODAY);
-  for (const id of ids) {
-    if (cache[id]?.d === today) continue;
+  const todo = ids.filter((id) => cache[id]?.d !== today);
+  const one = async (id) => {
     try {
       const s = await get(`/people/${id}/stats?stats=career&group=hitting,pitching&sportId=1`);
       let ab = 0, ip = 0;
@@ -413,7 +443,8 @@ async function rookieStatus(ids, cache) {
       }
       cache[id] = { ab, ip: Math.round(ip * 10) / 10, d: today };
     } catch (e) { warn(`Rookie check failed for ${id}: ${e.message}`); }
-  }
+  };
+  for (let i = 0; i < todo.length; i += 8) await Promise.all(todo.slice(i, i + 8).map(one));
 }
 
 async function autoRank(cfg, pool, notes) {
@@ -463,13 +494,57 @@ async function autoRank(cfg, pool, notes) {
     for (const c of chunk) if (!isGrad(c) && fill.length + forcedOK.length < cfg.size) fill.push(c);
   }
   const out = [...forcedOK, ...fill].sort((x, y) => y.score - x.score).slice(0, cfg.size);
+  const overall = new Map(out.map((c, i) => [c.p.id, i + 1]));
+
+  // Team lists: each organization's best prospects by the same score, any level, up to a max age
+  const teamSize = cfg.teamSize || 20, teamMaxAge = E.teamMaxAge ?? 25;
+  const all = [];
+  for (const p of Object.values(pool)) {
+    if (!p.org) continue;
+    const cons = consOf.get(p.id) || null;
+    if (!cons && (p.age ?? 99) > teamMaxAge) continue;
+    const sc = scorePlayer(p, cons, cfg);
+    if (!sc) continue;
+    // Small samples only count for players in the Top list or on an industry list
+    if (!cons && !overall.has(p.id) && (sc.pitcher ? ipToOuts(sc.L.ip) / 3 < (E.teamMinIP ?? 30) : (sc.L.pa || 0) < (E.teamMinPA ?? 100))) continue;
+    all.push({ p, cons, ...sc });
+  }
+  // A team's players in the Top list come first, in that order; everyone else follows by score
+  all.sort((a, b) => {
+    const oa = overall.get(a.p.id), ob = overall.get(b.p.id);
+    if (oa && ob) return oa - ob;
+    if (oa) return -1;
+    if (ob) return 1;
+    return b.score - a.score;
+  });
+  const byOrg = new Map();
+  for (const c of all) byOrg.set(c.p.org, [...(byOrg.get(c.p.org) || []), c]);
+  const teamsOut = {};
+  for (const [org, list] of byOrg) {
+    const keep = [];
+    for (let i = 0; i < list.length && keep.length < teamSize; i += teamSize + 5) {
+      const chunk = list.slice(i, i + teamSize + 5);
+      await rookieStatus(chunk.map((c) => c.p.id), status);
+      for (const c of chunk) if (!isGrad(c) && keep.length < teamSize) keep.push(c);
+    }
+    teamsOut[org] = keep.map((c, i) => {
+      const L = c.L || {};
+      const line = c.pitcher
+        ? { ip: L.ip ?? null, era: L.era ?? null, whip: L.whip ?? null, kPct: L.kPct ?? null, bbPct: L.bbPct ?? null }
+        : { pa: L.pa ?? null, avg: L.avg ?? null, obp: L.obp ?? null, slg: L.slg ?? null, hr: L.hr ?? null, sb: L.sb ?? null };
+      return { orgRank: i + 1, overall: overall.get(c.p.id) ?? null, id: c.p.id, name: c.p.name, pos: c.p.pos, age: c.p.age ?? null,
+        level: c.p.level || c.top, levels: [...new Set(c.p.byLevel.map((b) => b.level))], score: c.score.toFixed(2), scoreDetail: c.detail, pitcher: c.pitcher, line };
+    });
+  }
   await fs.writeFile(statusFile, JSON.stringify(status));
+
   const noteBy = new Map();
   for (const n of notes) { const id = parseInt(n.mlb_id, 10); noteBy.set(id ? `id:${id}` : `nm:${norm(n.name || "")}`, n); }
-  return out.map((c, i) => {
+  const ranked = out.map((c, i) => {
     const n = noteBy.get(`id:${c.p.id}`) || noteBy.get(`nm:${norm(c.p.name)}`) || {};
     return { rank: i + 1, name: c.p.name, id: c.p.id, fv: n.fv || "", eta: n.eta || "", blurb: n.blurb || "", score: c.score.toFixed(2), scoreDetail: c.detail };
   });
+  return { ranked, teams: teamsOut };
 }
 
 // ---------- farm system rankings ----------
@@ -540,6 +615,7 @@ async function main() {
   // Rankings: automatic (formula) or manual (rankings.csv)
   const cfg = await readJson(CONFIG_FILE, null);
   let ranked = [];
+  let teamLists = null;
   let formulaInfo = null;
   if (cfg?.auto) {
     let pool = allMilb;
@@ -549,13 +625,15 @@ async function main() {
     }
     if (pool) {
       const notes = parseCsv(await fs.readFile(NOTES_FILE, "utf8").catch(() => ""));
-      ranked = await autoRank(cfg, pool, notes);
+      const res = await autoRank(cfg, pool, notes);
+      ranked = res.ranked; teamLists = res.teams;
       formulaInfo = { ...publicFormula(cfg), rankSeason, calculated: isoDate(TODAY) };
       log(`Auto-ranked ${ranked.length} players from the formula`);
     } else {
       warn("No stats to rank with; keeping yesterday's Top 100.");
       ranked = (previous.rankings || []).map((r) => ({ rank: r.rank, name: r.name, id: r.id, fv: r.fv, eta: r.eta, blurb: r.blurb, score: r.score, scoreDetail: r.scoreDetail }));
       formulaInfo = previous.formula || null;
+      teamLists = null;
     }
   }
   const rows = cfg?.auto ? [] : parseCsv(await fs.readFile(RANKINGS_FILE, "utf8").catch(() => ""));
@@ -619,7 +697,16 @@ async function main() {
   const farmHistory = await readJson(farmFile, []);
   const farm = rankings.length ? buildFarm(rankings, teams, farmHistory, today) : (previous.farm || []);
   await fs.writeFile(farmFile, JSON.stringify(farmHistory, null, 1));
-  const site = { updated: new Date().toISOString(), season, rankMode: cfg?.auto ? "auto" : "manual", formula: formulaInfo, rankings, farm, players, transactions };
+  // Team Top 20 lists, keyed by organization, with names from the MLB teams
+  let teamsOut = previous.teams || {};
+  if (teamLists) {
+    teamsOut = {};
+    for (const t of Object.values(teams)) {
+      if (t.level !== "MLB" || !t.abbr || teamsOut[t.abbr]) continue;
+      teamsOut[t.abbr] = { org: t.abbr, name: t.name, list: teamLists[t.abbr] || [] };
+    }
+  }
+  const site = { updated: new Date().toISOString(), season, rankMode: cfg?.auto ? "auto" : "manual", formula: formulaInfo, rankings, farm, teams: teamsOut, players, transactions };
   await fs.writeFile(outFile, JSON.stringify(site));
   if (allMilb) {
     // Drop the raw counts that were only needed for combining lines, to keep the file small
