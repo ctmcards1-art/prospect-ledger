@@ -393,13 +393,18 @@ function publicFormula(cfg) {
 }
 
 function scorePlayer(p, cons, cfg) {
-  const W = cfg.weights, T = cfg.typicalAge;
-  const levels = p.byLevel.map((b) => b.level).filter((l) => MILB_ORDER.includes(l)).sort((a, b) => MILB_ORDER.indexOf(a) - MILB_ORDER.indexOf(b));
-  const top = levels[levels.length - 1];
-  if (!top) return null;
+  const W = cfg.weights, T = cfg.typicalAge, E = cfg.eligibility || {};
   const pitcher = p.pos === "P";
-  const own = p.byLevel.filter((b) => b.group === (pitcher ? "pitching" : "hitting"));
+  const own = p.byLevel.filter((b) => b.group === (pitcher ? "pitching" : "hitting") && MILB_ORDER.includes(b.level));
   if (!own.length) return null;
+  // A level only counts once he has a real look there: minAB at-bats or minIP innings
+  const minAB = E.minAB ?? 25, minIP = E.minIP ?? 5;
+  const qualifies = (b) => (pitcher ? ipToOuts(b.line.ip) / 3 >= minIP : (b.line.ab ?? Math.round((b.line.pa || 0) * 0.88)) >= minAB);
+  const byOrder = (a, b) => MILB_ORDER.indexOf(a) - MILB_ORDER.indexOf(b);
+  const qualLevels = own.filter(qualifies).map((b) => b.level).sort(byOrder);
+  const short = !qualLevels.length;   // no level with enough playing time
+  const levels = short ? own.map((b) => b.level).sort(byOrder) : qualLevels;
+  const top = levels[levels.length - 1];
   const L = own.length > 1 ? (p.total || own[own.length - 1].line) : own[0].line;
   const age = p.age ?? 22;
   const lev = MILB_ORDER.indexOf(top) * W.level;
@@ -425,7 +430,7 @@ function scorePlayer(p, cons, cfg) {
   }
   const sg = (v) => (v >= 0 ? "+" : "\u2212") + Math.abs(v).toFixed(2);
   return {
-    score: lev + ag + prod + posAdj + boost, top, pitcher, L,
+    score: lev + ag + prod + posAdj + boost, top, pitcher, L, short,
     detail: `Level ${lev.toFixed(2)} (${LEVEL_NAMES[top]}) \u00b7 Age ${sg(ag)} \u00b7 Production ${sg(prod)}${pitcher ? "" : ` \u00b7 Position ${sg(posAdj)} (${posNote})`} \u00b7 Consensus ${sg(boost)} (${cons ? cons.label : "not on a list"})`,
   };
 }
@@ -465,8 +470,12 @@ async function autoRank(cfg, pool, notes, prevPool = null, prevLabel = "") {
     }
   }
   // Score every player in the minors. Optional filters (maxAge, levels) only apply when set in the config.
-  const minPA = E.minPA ?? 100, minIP = E.minIP ?? 30;
-  const enough = (sc) => (sc.pitcher ? ipToOuts(sc.L.ip) / 3 >= minIP : (sc.L.pa || 0) >= minPA);
+  // Qualifies: at least one level with minAB at-bats / minIP innings (checked in scorePlayer).
+  // Fallback: if this season is smaller than fallbackPA / fallbackIP, last season's line is used when it's bigger.
+  const fbPA = E.fallbackPA ?? 100, fbIP = E.fallbackIP ?? 30;
+  const size = (sc) => (sc.pitcher ? ipToOuts(sc.L.ip) / 3 : sc.L.pa || 0);
+  const enough = (sc) => !sc.short;
+  const small = (sc) => !sc || sc.short || size(sc) < (sc.pitcher ? fbIP : fbPA);
   const scored = [];
   let fromPrev = 0;
   for (const p of Object.values(pool)) {
@@ -474,10 +483,10 @@ async function autoRank(cfg, pool, notes, prevPool = null, prevLabel = "") {
     if (!cons && E.maxAge != null && (p.age ?? 99) > E.maxAge) continue;
     let sc = scorePlayer(p, cons, cfg), src = p;
     // Barely played this season (injury, late signing): use last season if it was a real sample
-    if ((!sc || !enough(sc)) && prevPool?.[p.id]) {
+    if (small(sc) && prevPool?.[p.id]) {
       const q = { ...prevPool[p.id], age: (p.age ?? prevPool[p.id].age) - 1, pos: p.pos || prevPool[p.id].pos };
       const sq = scorePlayer(q, cons, cfg);
-      if (sq && enough(sq)) { sc = { ...sq, detail: `${sq.detail} \u00b7 ${prevLabel} stats (little or no time this season)` }; src = q; fromPrev++; }
+      if (sq && enough(sq) && (!sc || sc.short || size(sq) > size(sc)) && !small(sq)) { sc = { ...sq, detail: `${sq.detail} \u00b7 ${prevLabel} stats (little or no time this season)` }; src = q; fromPrev++; }
     }
     if (!sc) continue;
     if (!cons && !enough(sc)) continue;
