@@ -417,33 +417,44 @@ function viewPlayers(){
   const rankOf = Object.fromEntries((DATA.rankings||[]).filter(r=>r.id).map(r=>[r.id,r.rank]));
   const orgs = Object.keys(ALL.orgs||{}).sort();
   const pitch = dir.kind==="P";
-  const cols = pitch ? PCOLS : HCOLS;
-  const q = dir.q.toLowerCase();
-  let list = all.filter(p=>(pitch ? p.pos==="P" : p.pos!=="P")
-    && (!dir.org || p.org===dir.org) && (!dir.level || p.level===dir.level)
-    && (!q || p.name.toLowerCase().includes(q)));
+  const nrm = (t)=>String(t||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+  const q = nrm(dir.q);
+  const words = q ? q.split(" ") : [];
+  const base = all.filter(p=>(!dir.org || p.org===dir.org) && (!dir.level || p.level===dir.level));
+  // Name search covers hitters and pitchers and ignores accents; if nothing matches every word, fall back to any word (catches typos in one name)
+  let hits = q ? base.filter(p=>{ const n=nrm(p.name); return words.every(w=>n.includes(w)); }) : base;
+  let loose = false;
+  if (q && !hits.length) { hits = base.filter(p=>{ const n=nrm(p.name).split(" "); return words.some(w=>w.length>=3 && n.some(t=>t.startsWith(w)||w.startsWith(t)&&t.length>=4)); }); loose = hits.length>0; }
   const k = dir.sort;
-  list.sort((a,b)=>{
+  const sortList = (list)=> list.sort((a,b)=>{
     if (k==="name") return dir.desc ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name);
     if (k==="age") return dir.desc ? (b.age??0)-(a.age??0) : (a.age??99)-(b.age??99);
     const va=numVal(k,lineOf(a)?.[k]), vb=numVal(k,lineOf(b)?.[k]);
     if (va==null && vb==null) return 0; if (va==null) return 1; if (vb==null) return -1;
     return dir.desc ? vb-va : va-vb;
   });
-  const total = list.length;
-  list = list.slice(0, dir.show);
-  const th = (key,label)=>`<th${dir.sort===key?` aria-sort="${dir.desc?"descending":"ascending"}"`:""}><button data-sort="${key}">${label}${dir.sort===key?(dir.desc?" ▼":" ▲"):""}</button></th>`;
-  const fmt = (key,v)=> v==null ? "" : (key==="kPct"||key==="bbPct") ? v.toFixed ? v.toFixed(1) : v : esc(v);
-  return head("") + `
+  const th = (key,label,sortable)=> sortable ? `<th${dir.sort===key?` aria-sort="${dir.desc?"descending":"ascending"}"`:""}><button data-sort="${key}">${label}${dir.sort===key?(dir.desc?" ▼":" ▲"):""}</button></th>` : `<th>${label}</th>`;
+  const fmt = (key,v)=> v==null ? "" : (key==="kPct"||key==="bbPct") ? (v.toFixed ? v.toFixed(1) : v) : esc(v);
+  const table = (isP, list, sortable)=>{ const cols = isP ? PCOLS : HCOLS; return `<div class="tbl"><table class="dir-tbl"><thead><tr>${th("name","Player",sortable)}${th("age","Age",sortable)}<th>Pos</th><th>Org</th><th>Lvl</th>${cols.map(([k2,l])=>th(k2,l,sortable)).join("")}</tr></thead><tbody>
+    ${list.map(p=>{ const L=lineOf(p)||{}; const rk=rankOf[p.id]; return `<tr><td>${rk?`<span class="rkbadge">#${rk}</span>`:""}<a href="#p-${p.id}">${esc(p.name)}</a></td><td>${p.age??""}</td><td>${esc(p.pos)}</td><td>${esc(p.org)}</td><td>${esc(p.level||"")}</td>${cols.map(([k2])=>`<td>${fmt(k2,L[k2])}</td>`).join("")}</tr>`; }).join("") || `<tr><td colspan="${5+cols.length}">No players match those filters.</td></tr>`}
+    </tbody></table></div>`; };
+  const filters = `
   <div class="filters" style="margin-bottom:12px">
     <input id="d-q" type="search" placeholder="Search any minor leaguer" value="${esc(dir.q)}" aria-label="Search players">
     <select id="d-kind" aria-label="Hitters or pitchers"><option value="H"${!pitch?" selected":""}>Hitters</option><option value="P"${pitch?" selected":""}>Pitchers</option></select>
     <select id="d-org" aria-label="Organization"><option value="">All organizations</option>${orgs.map(o=>`<option value="${esc(o)}"${o===dir.org?" selected":""}>${esc(ALL.orgs[o])}</option>`).join("")}</select>
     <select id="d-level" aria-label="Level"><option value="">All levels</option>${LEVELS.filter(l=>l!=="MLB").map(l=>`<option${l===dir.level?" selected":""}>${l}</option>`).join("")}</select>
-  </div>
-  <div class="tbl"><table class="dir-tbl"><thead><tr>${th("name","Player")}${th("age","Age")}<th>Pos</th><th>Org</th><th>Lvl</th>${cols.map(([k2,l])=>th(k2,l)).join("")}</tr></thead><tbody>
-  ${list.map(p=>{ const L=lineOf(p)||{}; const rk=rankOf[p.id]; return `<tr><td>${rk?`<span class="rkbadge">#${rk}</span>`:""}<a href="#p-${p.id}">${esc(p.name)}</a></td><td>${p.age??""}</td><td>${esc(p.pos)}</td><td>${esc(p.org)}</td><td>${esc(p.level||"")}</td>${cols.map(([k2])=>`<td>${fmt(k2,L[k2])}</td>`).join("")}</tr>`; }).join("") || `<tr><td colspan="${5+cols.length}">No players match those filters.</td></tr>`}
-  </tbody></table></div>
+  </div>`;
+  if (q) {
+    const h = sortList(hits.filter(p=>p.pos!=="P")).slice(0,200), pi = sortList(hits.filter(p=>p.pos==="P")).slice(0,200);
+    const note = loose ? `<p class="more" style="margin:0 0 10px">No exact match for “${esc(dir.q)}”. Showing close matches.</p>` : "";
+    if (!h.length && !pi.length) return head("") + filters + `<div class="empty">No minor leaguer matches “${esc(dir.q)}”. Try just the last name.</div>`;
+    return head("") + filters + note + (h.length ? `<h4>Hitters</h4>${table(false,h,false)}` : "") + (pi.length ? `<h4 style="margin-top:18px">Pitchers</h4>${table(true,pi,false)}` : "");
+  }
+  let list = sortList(base.filter(p=>pitch ? p.pos==="P" : p.pos!=="P"));
+  const total = list.length;
+  list = list.slice(0, dir.show);
+  return head("") + filters + table(pitch, list, true) + `
   <div class="more"><span>Showing ${Math.min(dir.show,total).toLocaleString()} of ${total.toLocaleString()}</span>${total>dir.show?`<button id="d-more">Show 100 more</button>`:""}</div>`;
 }
 
@@ -503,7 +514,7 @@ function viewMethod(){
     </ol>
     <div class="example"><b>Example:</b> a 20-year-old at Double-A with an .850 OPS, 12% walk rate, 20% strikeout rate and ${W.fullPA}+ plate appearances, on the ${esc((F.consensus[0]||{}).label||"top")}, scores ${ex.lev.toFixed(2)} + ${ex.age.toFixed(2)} + ${ex.prod.toFixed(2)} + ${ex.boost.toFixed(2)} = <b>${exTotal.toFixed(2)}</b>.</div>
     <h3>Who's eligible</h3>
-    <p>Players on any of those lists who are still prospects (no more than ${E.rookieAB} MLB at-bats or ${E.rookieIP} MLB innings) and played in the affiliated minors. Also eligible: any player ${E.maxAge} or younger who reached ${E.levels.map(l=>levelName[l]||l).join(" or ")} with at least ${E.minPA} plate appearances or ${E.minIP} innings, so breakout players who aren't on industry lists still get a shot. Players who pass the rookie limits drop off automatically.</p>
+    <p>Players on any of those lists who are still prospects (no more than ${E.rookieAB} MLB at-bats or ${E.rookieIP} MLB innings) and played in the affiliated minors. Also eligible: any player ${E.maxAge} or younger who reached ${E.levels.map(l=>levelName[l]||l).join(" or ")} with at least ${E.minPA} plate appearances or ${E.minIP} innings, so breakout players who aren't on industry lists still get a shot. Players who pass the rookie limits drop off automatically.${(F.guarantee||[]).length ? ` Every player on the ${esc(F.guarantee.map(g=>{const c=F.consensus.find(x=>x.label===g); return c ? c.source : g;}).join(" and "))} is guaranteed a spot in the Top ${F.size||100}; the formula still decides where he ranks.` : ""}</p>
     <h3>When it updates</h3>
     <p>Scores are recalculated every day. Movement arrows compare each player's rank to the previous day's list. In April and May, the formula uses the previous season's full stats, because early-season samples are too small to rank on; from June on it uses the current season.${DATA.formula?.rankSeason ? ` The current list uses ${DATA.formula.rankSeason} stats and was last calculated ${esc(DATA.formula.calculated)}.` : ""}</p>
     <h3>What the formula leaves out</h3>
