@@ -1,0 +1,127 @@
+[
+ {
+  "date": "2026-10-28",
+  "orgs": {
+   "STL": {
+    "rank": 1,
+    "count": 11
+   },
+   "CLE": {
+    "rank": 2,
+    "count": 10
+   },
+   "MIL": {
+    "rank": 3,
+    "count": 9
+   },
+   "SF": {
+    "rank": 4,
+    "count": 9
+   },
+   "LAD": {
+    "rank": 5,
+    "count": 8
+   },
+   "BAL": {
+    "rank": 6,
+    "count": 8
+   },
+   "MIN": {
+    "rank": 7,
+    "count": 7
+   },
+   "SEA": {
+    "rank": 8,
+    "count": 6
+   },
+   "ATL": {
+    "rank": 9,
+    "count": 6
+   },
+   "COL": {
+    "rank": 10,
+    "count": 6
+   },
+   "LAA": {
+    "rank": 11,
+    "count": 5
+   },
+   "BOS": {
+    "rank": 12,
+    "count": 5
+   },
+   "PIT": {
+    "rank": 13,
+    "count": 5
+   },
+   "WSH": {
+    "rank": 14,
+    "count": 5
+   },
+   "MIA": {
+    "rank": 15,
+    "count": 5
+   },
+   "AZ": {
+    "rank": 16,
+    "count": 5
+   },
+   "TB": {
+    "rank": 17,
+    "count": 4
+   },
+   "ATH": {
+    "rank": 18,
+    "count": 4
+   },
+   "NYY": {
+    "rank": 19,
+    "count": 4
+   },
+   "TEX": {
+    "rank": 20,
+    "count": 3
+   },
+   "SD": {
+    "rank": 21,
+    "count": 3
+   },
+   "PHI": {
+    "rank": 22,
+    "count": 3
+   },
+   "CIN": {
+    "rank": 23,
+    "count": 3
+   },
+   "DET": {
+    "rank": 24,
+    "count": 3
+   },
+   "CWS": {
+    "rank": 25,
+    "count": 3
+   },
+   "NYM": {
+    "rank": 26,
+    "count": 3
+   },
+   "CHC": {
+    "rank": 27,
+    "count": 2
+   },
+   "HOU": {
+    "rank": 28,
+    "count": 2
+   },
+   "TOR": {
+    "rank": 29,
+    "count": 2
+   },
+   "KC": {
+    "rank": 30,
+    "count": 1
+   }
+  }
+ }
+]
