@@ -2,19 +2,19 @@
  {
   "date": "2026-10-28",
   "orgs": {
-   "STL": {
+   "LAD": {
     "rank": 1,
-    "count": 10
+    "count": 11
    },
    "MIL": {
     "rank": 2,
-    "count": 9
+    "count": 10
    },
-   "CLE": {
+   "STL": {
     "rank": 3,
-    "count": 9
+    "count": 10
    },
-   "LAD": {
+   "SF": {
     "rank": 4,
     "count": 8
    },
@@ -22,39 +22,39 @@
     "rank": 5,
     "count": 8
    },
-   "SF": {
+   "COL": {
     "rank": 6,
     "count": 8
    },
-   "MIN": {
+   "ATH": {
     "rank": 7,
     "count": 7
    },
-   "SEA": {
+   "CLE": {
     "rank": 8,
     "count": 6
    },
-   "LAA": {
+   "MIA": {
     "rank": 9,
     "count": 6
    },
-   "ATL": {
+   "TB": {
     "rank": 10,
     "count": 6
    },
-   "MIA": {
+   "PIT": {
     "rank": 11,
     "count": 6
    },
-   "COL": {
+   "SEA": {
     "rank": 12,
-    "count": 6
+    "count": 5
    },
-   "PIT": {
+   "PHI": {
     "rank": 13,
     "count": 5
    },
-   "WSH": {
+   "MIN": {
     "rank": 14,
     "count": 5
    },
@@ -62,65 +62,65 @@
     "rank": 15,
     "count": 5
    },
-   "TB": {
+   "LAA": {
     "rank": 16,
-    "count": 4
+    "count": 5
    },
    "BOS": {
     "rank": 17,
     "count": 4
    },
-   "PHI": {
+   "ATL": {
     "rank": 18,
     "count": 4
    },
-   "ATH": {
+   "TOR": {
     "rank": 19,
     "count": 4
    },
-   "TEX": {
+   "CIN": {
     "rank": 20,
     "count": 4
    },
-   "NYM": {
+   "DET": {
     "rank": 21,
     "count": 4
    },
-   "SD": {
+   "WSH": {
     "rank": 22,
     "count": 3
    },
-   "CHC": {
+   "TEX": {
     "rank": 23,
     "count": 3
    },
-   "CIN": {
+   "CHC": {
     "rank": 24,
     "count": 3
    },
-   "DET": {
+   "NYM": {
     "rank": 25,
     "count": 3
    },
-   "NYY": {
+   "HOU": {
     "rank": 26,
     "count": 3
    },
-   "CWS": {
+   "SD": {
     "rank": 27,
     "count": 2
    },
-   "HOU": {
+   "CWS": {
     "rank": 28,
     "count": 2
    },
-   "TOR": {
-    "rank": 29,
-    "count": 2
-   },
    "KC": {
+    "rank": 29,
+    "count": 0
+   },
+   "NYY": {
     "rank": 30,
-    "count": 1
+    "count": 0
    }
   }
  }
