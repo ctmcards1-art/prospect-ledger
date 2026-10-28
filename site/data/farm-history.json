@@ -6,11 +6,11 @@
     "rank": 1,
     "count": 11
    },
-   "CLE": {
-    "rank": 2,
-    "count": 10
-   },
    "MIL": {
+    "rank": 2,
+    "count": 9
+   },
+   "CLE": {
     "rank": 3,
     "count": 9
    },
@@ -22,11 +22,11 @@
     "rank": 5,
     "count": 8
    },
-   "BAL": {
+   "MIN": {
     "rank": 6,
     "count": 8
    },
-   "MIN": {
+   "BAL": {
     "rank": 7,
     "count": 7
    },
@@ -34,21 +34,21 @@
     "rank": 8,
     "count": 6
    },
-   "ATL": {
+   "LAA": {
     "rank": 9,
     "count": 6
    },
-   "COL": {
+   "ATL": {
     "rank": 10,
     "count": 6
    },
-   "LAA": {
+   "COL": {
     "rank": 11,
-    "count": 5
+    "count": 6
    },
-   "BOS": {
+   "MIA": {
     "rank": 12,
-    "count": 5
+    "count": 6
    },
    "PIT": {
     "rank": 13,
@@ -58,23 +58,23 @@
     "rank": 14,
     "count": 5
    },
-   "MIA": {
+   "AZ": {
     "rank": 15,
     "count": 5
    },
-   "AZ": {
-    "rank": 16,
-    "count": 5
-   },
    "TB": {
+    "rank": 16,
+    "count": 4
+   },
+   "BOS": {
     "rank": 17,
     "count": 4
    },
-   "ATH": {
+   "PHI": {
     "rank": 18,
     "count": 4
    },
-   "NYY": {
+   "NYM": {
     "rank": 19,
     "count": 4
    },
@@ -86,23 +86,23 @@
     "rank": 21,
     "count": 3
    },
-   "PHI": {
+   "CIN": {
     "rank": 22,
     "count": 3
    },
-   "CIN": {
+   "ATH": {
     "rank": 23,
     "count": 3
    },
-   "DET": {
+   "CWS": {
     "rank": 24,
     "count": 3
    },
-   "CWS": {
+   "DET": {
     "rank": 25,
     "count": 3
    },
-   "NYM": {
+   "NYY": {
     "rank": 26,
     "count": 3
    },
