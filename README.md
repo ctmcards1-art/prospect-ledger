@@ -46,6 +46,14 @@ With `"auto": true` in `ranking-config.json`, every update scores every eligible
 
 Every update also ranks all 30 organizations by how many players they have in the Top 150, with ties going to the system whose players rank higher (#1 = 150 points, #150 = 1 point). The **Farm Systems** page shows each team's count, how many are in the top 10 and top 50, daily movement, and its ranked prospects. The standings are free to view; the full list of each team's prospects is for subscribers. History is kept in `site/data/farm-history.json`.
 
+## Position adjustment
+
+The formula includes a fifth part for hitters: where they play. Each update pulls games at every position from MLB's fielding stats and credits each hitter by his share of games at each spot, using the values under `weights.position` in `ranking-config.json` (C +0.6, SS +0.4, CF +0.2, 2B/3B +0.1, LF/RF −0.3, 1B −0.5, DH −0.7). Pitchers get no adjustment. If fielding data is missing for a player, his primary position is used.
+
+## Team Top 20 lists
+
+Every update also builds a Top 20 for each organization with the same score (`teamSize` in `ranking-config.json`). A team's players in the Top 150 come first in their overall order; the rest are the team's next-best prospects at any level, age 25 or younger (`eligibility.teamMaxAge`), with at least 100 PA or 30 IP (`teamMinPA`, `teamMinIP`) unless they're on an industry list. Graduated players are excluded. Each team's page is linked from the Farm Systems page. Free visitors see a team's #1; subscribers see all 20.
+
 ## Checking that it's running
 
 The **Actions** tab lists every run. A green check means the data updated. A red X means something failed; click it to see the log. If a run fails, the site keeps showing the last good data.
