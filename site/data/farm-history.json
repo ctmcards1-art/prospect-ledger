@@ -123,5 +123,130 @@
     "count": 1
    }
   }
+ },
+ {
+  "date": "2026-10-29",
+  "orgs": {
+   "MIL": {
+    "rank": 1,
+    "count": 10
+   },
+   "STL": {
+    "rank": 2,
+    "count": 10
+   },
+   "MIA": {
+    "rank": 3,
+    "count": 9
+   },
+   "COL": {
+    "rank": 4,
+    "count": 9
+   },
+   "LAD": {
+    "rank": 5,
+    "count": 7
+   },
+   "TB": {
+    "rank": 6,
+    "count": 7
+   },
+   "BAL": {
+    "rank": 7,
+    "count": 7
+   },
+   "SEA": {
+    "rank": 8,
+    "count": 6
+   },
+   "CLE": {
+    "rank": 9,
+    "count": 6
+   },
+   "SF": {
+    "rank": 10,
+    "count": 6
+   },
+   "ATH": {
+    "rank": 11,
+    "count": 6
+   },
+   "AZ": {
+    "rank": 12,
+    "count": 6
+   },
+   "ATL": {
+    "rank": 13,
+    "count": 6
+   },
+   "MIN": {
+    "rank": 14,
+    "count": 5
+   },
+   "PIT": {
+    "rank": 15,
+    "count": 5
+   },
+   "LAA": {
+    "rank": 16,
+    "count": 5
+   },
+   "CIN": {
+    "rank": 17,
+    "count": 5
+   },
+   "BOS": {
+    "rank": 18,
+    "count": 4
+   },
+   "PHI": {
+    "rank": 19,
+    "count": 4
+   },
+   "TOR": {
+    "rank": 20,
+    "count": 4
+   },
+   "DET": {
+    "rank": 21,
+    "count": 4
+   },
+   "WSH": {
+    "rank": 22,
+    "count": 3
+   },
+   "NYM": {
+    "rank": 23,
+    "count": 3
+   },
+   "TEX": {
+    "rank": 24,
+    "count": 3
+   },
+   "CWS": {
+    "rank": 25,
+    "count": 3
+   },
+   "CHC": {
+    "rank": 26,
+    "count": 2
+   },
+   "KC": {
+    "rank": 27,
+    "count": 2
+   },
+   "SD": {
+    "rank": 28,
+    "count": 1
+   },
+   "HOU": {
+    "rank": 29,
+    "count": 1
+   },
+   "NYY": {
+    "rank": 30,
+    "count": 1
+   }
+  }
  }
 ]
