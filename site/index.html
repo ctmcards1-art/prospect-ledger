@@ -8,155 +8,155 @@
 <meta name="description" content="Prospect rankings and a daily minor league transaction wire.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Bitter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
 <style>
-/* Layout: deep-sea masthead band over a single reading column; list and wire are dense ledgers, player page is a scouting card */
+/* Layout: maroon masthead over a single reading column. Rank numbers are scoreboard plates; that's the one loud thing. */
 :root{
-  --paper:#f2f6fa; --surface:#ffffff; --sunk:#e4ecf4; --line:#ccd9e5;
-  --ink:#0b1a2a; --muted:#51677d; --pine:#0b3d66; --pine-ink:#ffffff; --flag:#1f9ec9;
-  --up:#17795a; --down:#b8382c;
-  --sea:#0a2f4f; --sea-2:#0d3b63; --sea-ink:#f1f6fb; --sea-muted:#a3bdd6; --foam:#5cc6f0;
-  --f-display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
-  --f-body:"Source Serif 4",Georgia,"Times New Roman",serif;
-  --f-data:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --paper:#f5f4f3; --surface:#ffffff; --sunk:#eeeae9; --line:#ddd5d4;
+  --ink:#221518; --muted:#6b5a5d; --pine:#6b1f2e; --pine-ink:#fbf8f6; --flag:#b8862b;
+  --up:#1f7a4a; --down:#c2362b; --pole:#e2b04a;
+  --sea:#5c1a27; --sea-2:#4c1520; --sea-ink:#fbf8f6; --sea-muted:#d9bfc3; --foam:#e2b04a;
+  --f-display:"Anton","Arial Narrow",Impact,sans-serif;
+  --f-body:"Bitter",Rockwell,Georgia,serif;
+  --f-data:"Bitter",Rockwell,Georgia,serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --paper:#07111c; --surface:#0d1b2b; --sunk:#13253a; --line:#1e3550;
-  --ink:#e3ecf5; --muted:#8aa3bc; --pine:#5bb2ea; --pine-ink:#07111c; --flag:#4cc3ef;
-  --up:#4fc597; --down:#f07a6b;
-  --sea:#061f36; --sea-2:#0a2a47; --sea-ink:#eef4fa; --sea-muted:#8fb0cf; --foam:#5cc6f0; color-scheme:dark}}
+  --paper:#161012; --surface:#1f171a; --sunk:#291e22; --line:#3a2b30;
+  --ink:#efe7e8; --muted:#b09ca0; --pine:#e2b04a; --pine-ink:#161012; --flag:#e2b04a;
+  --up:#5cc790; --down:#f08070; --pole:#e2b04a;
+  --sea:#3d1119; --sea-2:#330e15; --sea-ink:#f6eeef; --sea-muted:#c9a9ae; --foam:#e2b04a; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --paper:#07111c; --surface:#0d1b2b; --sunk:#13253a; --line:#1e3550;
-  --ink:#e3ecf5; --muted:#8aa3bc; --pine:#5bb2ea; --pine-ink:#07111c; --flag:#4cc3ef;
-  --up:#4fc597; --down:#f07a6b;
-  --sea:#061f36; --sea-2:#0a2a47; --sea-ink:#eef4fa; --sea-muted:#8fb0cf; --foam:#5cc6f0; color-scheme:dark}
+  --paper:#161012; --surface:#1f171a; --sunk:#291e22; --line:#3a2b30;
+  --ink:#efe7e8; --muted:#b09ca0; --pine:#e2b04a; --pine-ink:#161012; --flag:#e2b04a;
+  --up:#5cc790; --down:#f08070; --pole:#e2b04a;
+  --sea:#3d1119; --sea-2:#330e15; --sea-ink:#f6eeef; --sea-muted:#c9a9ae; --foam:#e2b04a; color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;font-variant-numeric:tabular-nums lining-nums}
 .wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 a{color:inherit}
 button,input,select{font:inherit}
 :focus-visible{outline:2px solid var(--flag);outline-offset:2px}
 
 /* masthead */
-.band{background:linear-gradient(180deg,var(--sea) 0%,var(--sea-2) 100%);color:var(--sea-ink);border-bottom:3px solid var(--foam)}
-.mast{border-bottom:4px double color-mix(in srgb,var(--sea-ink) 30%,transparent);padding-block:28px 14px}
-.mast .row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px}
-.mast h1{margin:0;font-family:var(--f-display);font-weight:900;font-size:clamp(2.6rem,7vw,4.4rem);line-height:.88;letter-spacing:.005em;text-transform:uppercase}
+.band{background:var(--sea);color:var(--sea-ink)}
+.mast{padding-block:30px 0}
+.mast .row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 32px}
+.mast h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(2.75rem,7vw,4.25rem);line-height:.9;letter-spacing:.01em}
 .mast h1 a{text-decoration:none}
-.mast h1{text-transform:none}
-.mast h1 .up{text-transform:uppercase}
-.mast .tag{font-family:var(--f-data);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--sea-muted);margin-top:8px}
-.mast h1 .up{color:var(--foam)}
-nav.sections{display:flex;gap:2px;flex-wrap:wrap}
-nav.sections a{font-family:var(--f-display);font-weight:800;font-size:1.05rem;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;padding:6px 12px;border-radius:3px;color:var(--sea-muted)}
+.mast h1 .up{color:inherit}
+.mast .tag{font-size:.95rem;font-style:italic;color:var(--sea-muted);margin-top:8px}
+nav.sections{display:flex;gap:4px 22px;flex-wrap:wrap}
+nav.sections a{font-weight:600;font-size:1rem;text-decoration:none;padding:6px 0 12px;color:var(--sea-muted);border-bottom:4px solid transparent}
 nav.sections a:hover{color:var(--sea-ink)}
-nav.sections a[aria-current="page"]{background:var(--foam);color:var(--sea)}
-.dateline{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--f-data);font-size:.72rem;color:var(--sea-muted);padding-block:10px;letter-spacing:.04em}
-.preview{background:color-mix(in srgb,var(--flag) 16%,transparent);border:1px solid var(--flag);color:var(--ink);font-family:var(--f-data);font-size:.78rem;padding:8px 12px;border-radius:4px;margin-top:14px}
+nav.sections a[aria-current="page"]{color:var(--sea-ink);border-bottom-color:var(--pole)}
+.dateline{display:flex;justify-content:space-between;gap:4px 12px;flex-wrap:wrap;font-size:.82rem;color:var(--sea-muted);padding-block:10px;border-top:1px solid color-mix(in srgb,var(--sea-ink) 16%,transparent)}
+.preview{background:color-mix(in srgb,var(--pole) 22%,transparent);border:1px solid var(--pole);color:var(--ink);font-size:.85rem;padding:8px 12px;border-radius:4px;margin-top:14px}
 
-main{padding-block:24px 64px}
-h2.sec{font-family:var(--f-display);font-weight:900;font-size:2.1rem;text-transform:uppercase;line-height:1;margin:0;letter-spacing:.01em}
-.sec-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px;margin-bottom:16px}
-.sec-head p{margin:4px 0 0;color:var(--muted);font-size:.95rem;max-width:62ch}
+main{padding-block:32px 72px}
+h2.sec{font-family:var(--f-display);font-weight:400;font-size:clamp(2rem,5vw,2.6rem);line-height:1;margin:0;letter-spacing:.005em}
+.sec-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px 24px;margin-bottom:20px}
+.sec-head p{margin:8px 0 0;color:var(--muted);font-size:.95rem;max-width:60ch}
 .filters{display:flex;flex-wrap:wrap;gap:8px}
-.filters input,.filters select{padding:7px 10px;border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--ink);font-size:.9rem;min-width:0}
+.filters input,.filters select{padding:8px 11px;border:1px solid var(--line);border-radius:3px;background:var(--surface);color:var(--ink);font-size:.9rem;min-width:0}
 .filters input{width:200px;max-width:100%}
 .toggle{display:inline-flex;align-items:center;gap:6px;font-size:.9rem;color:var(--muted)}
 
 /* ranking ledger */
-.ledger{background:var(--surface);border:1px solid var(--line);border-radius:4px}
-.ledger-row{display:grid;grid-template-columns:56px 1fr auto;gap:4px 16px;padding:14px 16px;border-bottom:1px solid var(--line);text-decoration:none;color:inherit;align-items:start}
+.ledger{background:var(--surface);border:1px solid var(--line);border-radius:3px}
+.ledger-row{display:grid;grid-template-columns:52px 1fr auto;gap:4px 18px;padding:16px 18px;border-bottom:1px solid var(--line);text-decoration:none;color:inherit;align-items:start}
 .ledger-row:last-child{border-bottom:0}
 .ledger-row:hover{background:var(--sunk)}
-.rk{font-family:var(--f-display);font-weight:900;font-size:2.1rem;line-height:.95;font-variant-numeric:tabular-nums;text-align:right}
-.mv{display:block;font-family:var(--f-data);font-size:.68rem;font-weight:500;text-align:right;margin-top:4px}
+.rk{display:grid;place-items:center;width:52px;height:52px;border-radius:2px;background:var(--sea);color:var(--sea-ink);font-family:var(--f-display);font-weight:400;font-size:1.75rem;line-height:1;letter-spacing:.01em;box-shadow:inset 0 -3px 0 rgb(0 0 0 / .22)}
+.rk.top{color:var(--pole)}
+.mv{display:block;font-size:.75rem;font-weight:600;text-align:center;margin-top:6px}
 .mv.up{color:var(--up)} .mv.down{color:var(--down)} .mv.new{color:var(--flag)} .mv.flat{color:var(--muted)}
 .who{min-width:0}
-.who .nm{font-weight:600;font-size:1.12rem;line-height:1.25}
-.who .meta{font-family:var(--f-data);font-size:.74rem;color:var(--muted);letter-spacing:.03em;margin-top:3px;display:flex;flex-wrap:wrap;gap:4px 12px}
+.who .nm{font-weight:600;font-size:1.15rem;line-height:1.25;padding-top:2px}
+.who .meta{font-size:.84rem;color:var(--muted);margin-top:4px;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 14px}
 .who .blurb{margin:8px 0 0;font-size:.94rem;color:var(--ink);max-width:68ch}
-.line{font-family:var(--f-data);font-size:.76rem;color:var(--muted);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;line-height:1.7}
-.line b{color:var(--ink);font-weight:500}
-.fv{display:inline-block;font-family:var(--f-data);font-size:.7rem;font-weight:500;border:1px solid var(--pine);color:var(--pine);border-radius:3px;padding:0 5px}
-.lvl{display:inline-block;font-family:var(--f-data);font-size:.68rem;font-weight:500;background:var(--sunk);border-radius:3px;padding:0 5px;color:var(--ink)}
+.line{font-size:.84rem;color:var(--muted);text-align:right;white-space:nowrap;line-height:1.65}
+.line b{color:var(--ink);font-weight:600;font-size:.95rem}
+.fv{display:inline-block;font-size:.78rem;font-weight:600;border:1px solid var(--pine);color:var(--pine);border-radius:2px;padding:0 6px}
+.lvl{display:inline-block;font-size:.76rem;font-weight:600;background:var(--sunk);border-radius:2px;padding:0 6px;color:var(--ink)}
 .lvl.mlb{background:var(--pine);color:var(--pine-ink)}
 @media (max-width:640px){
-  .ledger-row{grid-template-columns:44px 1fr}
-  .rk{font-size:1.7rem}
+  .ledger-row{grid-template-columns:44px 1fr;gap:4px 14px;padding:14px}
+  .rk{width:44px;height:44px;font-size:1.45rem}
   .line{grid-column:2;text-align:left;white-space:normal}
 }
 
 /* wire */
 .day{margin-bottom:22px}
-.day h3{font-family:var(--f-display);font-weight:800;font-size:1.2rem;letter-spacing:.05em;text-transform:uppercase;margin:0 0 6px;padding-bottom:4px;border-bottom:2px solid var(--ink)}
+.day h3{font-family:var(--f-display);font-weight:400;font-size:1.4rem;letter-spacing:.01em;margin:0 0 6px;padding-bottom:6px;border-bottom:3px solid var(--sea)}
 .tx{display:grid;grid-template-columns:118px 1fr;gap:4px 14px;padding:10px 0;border-bottom:1px solid var(--line);align-items:baseline}
 .tx:last-child{border-bottom:0}
-.kind{font-family:var(--f-data);font-size:.68rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:3px;justify-self:start;white-space:nowrap}
+.kind{font-size:.78rem;font-weight:600;padding:2px 8px;border-radius:2px;justify-self:start;white-space:nowrap}
 .k-Promoted,.k-Called{background:color-mix(in srgb,var(--up) 15%,transparent);color:var(--up)}
 .k-Demoted,.k-Optioned,.k-Released{background:color-mix(in srgb,var(--down) 13%,transparent);color:var(--down)}
-.k-Trade,.k-Rule{background:color-mix(in srgb,var(--flag) 18%,transparent);color:var(--ink)}
+.k-Trade,.k-Rule{background:color-mix(in srgb,var(--pole) 30%,transparent);color:var(--ink)}
 .k-Injured,.k-Signed,.k-Other{background:var(--sunk);color:var(--muted)}
 .tx .what{min-width:0}
 .tx .pl{font-weight:600}
 .tx .pl a{text-decoration-color:var(--line);text-underline-offset:3px}
-.tx .path{font-family:var(--f-data);font-size:.76rem;color:var(--muted);margin-left:6px}
+.tx .path{font-size:.84rem;color:var(--muted);margin-left:8px}
 .tx .desc{display:block;font-size:.9rem;color:var(--muted)}
-.rkbadge{font-family:var(--f-data);font-size:.68rem;font-weight:500;background:var(--ink);color:var(--paper);border-radius:3px;padding:0 5px;margin-right:6px;vertical-align:1px}
+.rkbadge{font-family:var(--f-display);font-size:.8rem;font-weight:400;letter-spacing:.02em;background:var(--sea);color:var(--sea-ink);border-radius:2px;padding:1px 6px;margin-right:6px;vertical-align:1px}
 @media (max-width:560px){.tx{grid-template-columns:1fr}}
 
 /* player card */
-.back{font-family:var(--f-data);font-size:.78rem;color:var(--muted);text-decoration:none;display:inline-block;margin-bottom:14px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:4px;overflow:hidden}
-.card-head{display:grid;grid-template-columns:auto 1fr;gap:4px 20px;padding:20px;border-bottom:3px solid var(--pine);align-items:end}
-.card-head .rk{font-size:3.6rem;text-align:left;color:var(--pine)}
-.card-head h2{font-family:var(--f-display);font-weight:900;font-size:clamp(2rem,6vw,3rem);text-transform:uppercase;line-height:.92;margin:0;text-wrap:balance}
-.card-head .meta{font-family:var(--f-data);font-size:.78rem;color:var(--muted);margin-top:6px;display:flex;flex-wrap:wrap;gap:4px 14px}
+.back{font-size:.88rem;font-weight:600;color:var(--muted);text-decoration:none;display:inline-block;margin-bottom:16px}
+.back:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.card-head{display:grid;grid-template-columns:auto 1fr;gap:4px 22px;padding:22px;border-bottom:3px solid var(--sea);align-items:center}
+.card-head .rk{width:84px;height:84px;font-size:3rem}
+.card-head h2{font-family:var(--f-display);font-weight:400;font-size:clamp(2.2rem,6vw,3.4rem);line-height:.95;letter-spacing:.005em;margin:0;text-wrap:balance}
+.card-head .meta{font-size:.9rem;color:var(--muted);margin-top:8px;display:flex;flex-wrap:wrap;gap:2px 16px}
 .card-body{padding:20px;display:flex;flex-direction:column;gap:22px}
 .card-body .blurb{font-size:1.05rem;margin:0;max-width:65ch}
 .facts{display:flex;flex-wrap:wrap;gap:10px 32px}
-.fact .k{font-family:var(--f-data);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.fact .v{font-family:var(--f-display);font-weight:800;font-size:1.6rem;line-height:1.1}
+.fact .k{font-size:.82rem;color:var(--muted)}
+.fact .v{font-family:var(--f-display);font-weight:400;font-size:1.9rem;line-height:1.1}
 .ladder{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
-.rung{text-align:center;font-family:var(--f-data);font-size:.74rem;padding:8px 0;border-radius:3px;background:var(--sunk);color:var(--muted);border:1px solid transparent}
+.rung{text-align:center;font-size:.85rem;font-weight:600;padding:8px 0;border-radius:2px;background:var(--sunk);color:var(--muted);border:1px solid transparent}
 .rung.reached{background:color-mix(in srgb,var(--pine) 18%,var(--surface));color:var(--ink)}
-.rung.now{background:var(--pine);color:var(--pine-ink);font-weight:500}
-h4{font-family:var(--f-display);font-weight:800;font-size:1.15rem;letter-spacing:.05em;text-transform:uppercase;margin:0 0 8px}
-.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
-table{width:100%;border-collapse:collapse;font-family:var(--f-data);font-size:.8rem;font-variant-numeric:tabular-nums}
+.rung.now{background:var(--sea);color:var(--pole)}
+h4{font-family:var(--f-display);font-weight:400;font-size:1.35rem;letter-spacing:.01em;margin:0 0 10px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:.86rem}
 th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
-th{font-weight:500;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--sunk)}
+th{font-weight:600;font-size:.8rem;color:var(--muted);background:var(--sunk)}
 th:nth-child(-n+3),td:nth-child(-n+3){text-align:left}
 tr:last-child td{border-bottom:0}
-.dir-tbl td:first-child a{font-family:var(--f-body);font-size:.92rem;font-weight:600;text-decoration:none}
+.dir-tbl td:first-child a{font-size:.92rem;font-weight:600;text-decoration:none}
 .dir-tbl td:first-child a:hover{text-decoration:underline}
 .dir-tbl th button{all:unset;cursor:pointer}
 .dir-tbl th button:focus-visible{outline:2px solid var(--flag)}
 .dir-tbl th[aria-sort] button{color:var(--ink)}
 .dir-tbl th:nth-child(-n+5),.dir-tbl td:nth-child(-n+5){text-align:left}
-.more{margin-top:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-family:var(--f-data);font-size:.78rem;color:var(--muted)}
-.more button{font-family:var(--f-display);font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--pine);color:var(--pine-ink);border:0;border-radius:3px;padding:7px 14px;cursor:pointer}
+.more{margin-top:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:.86rem;color:var(--muted)}
+.more button{font-weight:600;background:var(--pine);color:var(--pine-ink);border:0;border-radius:3px;padding:7px 14px;cursor:pointer}
 .method{max-width:68ch}
 .method .lede{font-size:1.1rem;margin:10px 0 18px}
-.method h3{font-family:var(--f-display);font-weight:800;font-size:1.3rem;letter-spacing:.04em;text-transform:uppercase;margin:26px 0 6px}
+.method h3{font-family:var(--f-display);font-weight:400;font-size:1.5rem;letter-spacing:.01em;margin:30px 0 8px}
 .method ol,.method ul{padding-left:1.3em;display:flex;flex-direction:column;gap:10px}
 .method .example{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--pine);border-radius:4px;padding:12px 16px;margin-top:14px}
-.score-detail{font-family:var(--f-data);font-size:.85rem;margin:0}
+.score-detail{font-size:.92rem;margin:0}
 .sec-head p a{color:var(--ink);text-underline-offset:3px}
-.gate{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--pine);border-radius:4px;padding:28px 24px;max-width:560px;margin:8px auto 0;text-align:center}
-.gate h3{font-family:var(--f-display);font-weight:900;font-size:1.9rem;text-transform:uppercase;line-height:1;margin:0 0 8px}
+.gate{background:var(--surface);border:1px solid var(--line);border-top:6px solid var(--sea);border-radius:3px;padding:28px 24px;max-width:560px;margin:8px auto 0;text-align:center}
+.gate h3{font-family:var(--f-display);font-weight:400;font-size:2.1rem;line-height:1;margin:0 0 10px}
 .gate p{color:var(--muted);margin:0 auto 18px;max-width:46ch}
 .gate ul{list-style:none;padding:0;margin:0 0 20px;display:flex;flex-direction:column;gap:6px;font-size:.95rem}
-.gate ul li::before{content:"✓ ";color:var(--pine);font-weight:600}
+.gate ul li::before{content:"✓ ";color:var(--up);font-weight:700}
 .gate form{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 .gate input{padding:9px 12px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink);min-width:0;width:220px;max-width:100%}
-.gate button,.gate .sub{font-family:var(--f-display);font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--pine);color:var(--pine-ink);border:0;border-radius:3px;padding:9px 16px;cursor:pointer;text-decoration:none;display:inline-block}
+.gate button,.gate .sub{font-weight:600;background:var(--pine);color:var(--pine-ink);border:0;border-radius:3px;padding:9px 16px;cursor:pointer;text-decoration:none;display:inline-block}
 .gate .err{color:var(--down);font-size:.88rem;min-height:1.3em;margin:8px 0 0}
-.gate .or{font-family:var(--f-data);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:16px 0 10px}
+.gate .or{font-size:.85rem;color:var(--muted);margin:16px 0 10px}
 .lockfade{position:relative;max-height:150px;overflow:hidden;opacity:.5;pointer-events:none;user-select:none;filter:blur(3px)}
-.gate .price{font-family:var(--f-display);font-weight:800;font-size:1.6rem;margin:0 0 12px}
-.gate .soon{display:inline-block;font-family:var(--f-data);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--line);border-radius:3px;padding:8px 14px}
+.gate .price{font-family:var(--f-display);font-weight:400;font-size:1.9rem;margin:0 0 12px}
+.gate .soon{display:inline-block;font-size:.9rem;font-weight:600;color:var(--muted);border:1px dashed var(--line);border-radius:2px;padding:8px 14px}
 .gate .hint{font-size:.88rem;margin:16px auto 0}
 .gate .signin{all:unset;cursor:pointer;color:var(--pine);font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .gate .signin:focus-visible{outline:2px solid var(--flag);outline-offset:2px}
@@ -165,46 +165,46 @@ tr:last-child td{border-bottom:0}
 .keybtn:hover,.keybtn[aria-expanded="true"]{opacity:1;color:var(--pine)}
 .keybtn.on{color:var(--up);opacity:.75}
 .keypanel{background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 28px rgb(0 0 0 / .2);padding:12px 14px;width:250px;max-width:calc(100vw - 32px);font-size:.88rem}
-.keypanel label{display:block;font-family:var(--f-data);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.keypanel label{display:block;font-size:.85rem;font-weight:600;color:var(--muted);margin-bottom:6px}
 .keypanel .row{display:flex;gap:6px}
 .keypanel input{flex:1;min-width:0;padding:7px 9px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink)}
-.keypanel button{font-family:var(--f-display);font-weight:800;letter-spacing:.05em;text-transform:uppercase;background:var(--pine);color:var(--pine-ink);border:0;border-radius:3px;padding:7px 10px;cursor:pointer}
+.keypanel button{font-weight:600;background:var(--pine);color:var(--pine-ink);border:0;border-radius:3px;padding:7px 10px;cursor:pointer}
 .keypanel p{margin:0 0 8px}
 .keypanel .err{color:var(--down);font-size:.8rem;margin:6px 0 0;min-height:1em}
-.lock-link{background:none;border:0;color:var(--muted);font-family:var(--f-data);font-size:.72rem;cursor:pointer;text-decoration:underline;padding:0}
-.farm-row{display:grid;grid-template-columns:56px 1fr;gap:4px 16px;padding:16px;border-bottom:1px solid var(--line)}
+.lock-link{background:none;border:0;color:var(--muted);font-size:.8rem;cursor:pointer;text-decoration:underline;padding:0}
+.farm-row{display:grid;grid-template-columns:52px 1fr;gap:4px 18px;padding:18px;border-bottom:1px solid var(--line)}
 .farm-row:last-child{border-bottom:0}
-.farm-rk .rk{display:block}
+
 .farm-name{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .farm-name .nm{font-weight:600;font-size:1.15rem}
-.farm-name .org{font-family:var(--f-data);font-size:.72rem;color:var(--muted);letter-spacing:.06em}
-.farm-bar{height:6px;background:var(--sunk);border-radius:3px;margin:8px 0 6px;max-width:420px;overflow:hidden}
-.farm-bar i{display:block;height:100%;background:var(--pine);border-radius:3px}
-.farm-meta{display:flex;flex-wrap:wrap;gap:4px 16px;font-family:var(--f-data);font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums}
-.farm-meta b{color:var(--ink);font-weight:500}
+.farm-name .org{font-size:.84rem;color:var(--muted)}
+.farm-bar{height:6px;background:var(--sunk);border-radius:1px;margin:8px 0 6px;max-width:420px;overflow:hidden}
+.farm-bar i{display:block;height:100%;background:var(--sea);border-radius:1px}
+.farm-meta{display:flex;flex-wrap:wrap;gap:2px 18px;font-size:.84rem;color:var(--muted)}
+.farm-meta b{color:var(--ink);font-weight:600}
 .cdelta.up{color:var(--up)} .cdelta.down{color:var(--down)}
 .farm-players{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.pchip{display:inline-flex;align-items:baseline;gap:6px;font-size:.85rem;text-decoration:none;background:var(--sunk);border:1px solid var(--line);border-radius:4px;padding:3px 8px}
+.pchip{display:inline-flex;align-items:baseline;gap:7px;font-size:.88rem;text-decoration:none;background:var(--sunk);border:1px solid var(--line);border-radius:2px;padding:3px 8px}
 .pchip:hover{border-color:var(--pine)}
-.pchip b{font-family:var(--f-data);font-size:.72rem;font-weight:500;color:var(--pine)}
-.pchip span{font-family:var(--f-data);font-size:.68rem;color:var(--muted)}
+.pchip b{font-family:var(--f-display);font-size:.85rem;font-weight:400;color:var(--pine)}
+.pchip span{font-size:.78rem;color:var(--muted)}
 .farm-players .none,.locked-more{font-size:.85rem;color:var(--muted);align-self:center}
 .farm-signin{all:unset;cursor:pointer;color:var(--pine);font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .farm-signin:focus-visible{outline:2px solid var(--flag);outline-offset:2px}
 .farm-name a.nm{text-decoration:none}
 .farm-name a.nm:hover{text-decoration:underline;text-underline-offset:3px}
-.farm-top20{margin-left:auto;font-family:var(--f-data);font-size:.74rem;color:var(--pine);text-decoration:none;white-space:nowrap}
+.farm-top20{margin-left:auto;font-size:.86rem;font-weight:600;color:var(--pine);text-decoration:none;white-space:nowrap}
 .farm-top20:hover{text-decoration:underline}
 .postbl{border-collapse:collapse;margin:8px 0;font-family:var(--f-data);font-size:.82rem;width:auto}
 .postbl td{padding:3px 14px 3px 0;border:0;text-align:left}
 .postbl td:last-child{text-align:right;font-variant-numeric:tabular-nums}
 .farm-note{color:var(--muted);font-size:.85rem;margin:12px 0 0;max-width:70ch}
 .farm-note a{color:var(--ink)}
-@media (max-width:640px){.farm-row{grid-template-columns:44px 1fr}}
-.empty{background:var(--surface);border:1px dashed var(--line);border-radius:4px;padding:28px 24px;color:var(--muted);max-width:70ch}
-.empty h3{font-family:var(--f-display);font-weight:800;text-transform:uppercase;color:var(--ink);margin:0 0 6px;font-size:1.4rem}
-.empty code{font-family:var(--f-data);font-size:.85em;background:var(--sunk);padding:1px 5px;border-radius:3px}
-footer{border-top:1px solid var(--line);padding-block:18px 32px;font-family:var(--f-data);font-size:.72rem;color:var(--muted)}
+@media (max-width:640px){.farm-row{grid-template-columns:44px 1fr;gap:4px 14px;padding:14px}}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:3px;padding:28px 24px;color:var(--muted);max-width:70ch}
+.empty h3{font-family:var(--f-display);font-weight:400;color:var(--ink);margin:0 0 6px;font-size:1.6rem}
+.empty code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85em;background:var(--sunk);padding:1px 5px;border-radius:3px}
+footer{border-top:1px solid var(--line);padding-block:20px 36px;font-size:.84rem;color:var(--muted);max-width:1080px}
 @media (prefers-reduced-motion: no-preference){.ledger-row{transition:background .12s}}
 </style>
 </head>
@@ -214,13 +214,13 @@ footer{border-top:1px solid var(--line);padding-block:18px 32px;font-family:var(
     <div class="row">
       <div>
         <h1><a href="#top100" id="site-name">MiLB <span class="up">Report</span></a></h1>
-        <div class="tag">Prospect rankings · Daily transaction wire</div>
+        <div class="tag">Prospect rankings and a daily transaction wire</div>
       </div>
       <nav class="sections" aria-label="Sections">
         <a href="#top100" data-nav="top100" id="nav-top">Top 150</a>
-        <a href="#farm" data-nav="farm">Farm Systems</a>
+        <a href="#farm" data-nav="farm">Farm systems</a>
         <a href="#players" data-nav="players">Players</a>
-        <a href="#wire" data-nav="wire">Transaction Wire</a>
+        <a href="#wire" data-nav="wire">Transaction wire</a>
       </nav>
     </div>
   </div>
@@ -335,8 +335,8 @@ function move(r){
 function summaryLine(s){
   if (!s) return "";
   const lv = s.levels.join("/");
-  if (s.group === "hitting") return `<b>${esc(s.avg??"—")}/${esc(s.obp??"—")}/${esc(s.slg??"—")}</b><br>${s.hr} HR · ${s.sb} SB · ${s.kPct??"—"}% K · ${s.bbPct??"—"}% BB<br>${s.season} · ${esc(lv)} · ${s.pa} PA`;
-  return `<b>${esc(s.era??"—")} ERA · ${esc(s.whip??"—")} WHIP</b><br>${s.kPct??"—"}% K · ${s.bbPct??"—"}% BB<br>${s.season} · ${esc(lv)} · ${esc(s.ip)} IP`;
+  if (s.group === "hitting") return `<b>${esc(s.avg??"—")}/${esc(s.obp??"—")}/${esc(s.slg??"—")}</b><br>${s.hr} HR&ensp;${s.sb} SB&ensp;${s.kPct??"—"}% K&ensp;${s.bbPct??"—"}% BB<br>${s.season}&ensp;${esc(lv)}&ensp;${s.pa} PA`;
+  return `<b>${esc(s.era??"—")} ERA&ensp;${esc(s.whip??"—")} WHIP</b><br>${s.kPct??"—"}% K&ensp;${s.bbPct??"—"}% BB<br>${s.season}&ensp;${esc(lv)}&ensp;${esc(s.ip)} IP`;
 }
 
 // ---------- Top 100 ----------
@@ -360,10 +360,10 @@ function viewTop(){
   ${(()=>{ const locked = !unlocked; const shown = locked ? list.filter(r=>r.rank<=FREE_RANKS) : list; const hidden = locked ? list.filter(r=>r.rank>FREE_RANKS) : []; return `
   <div class="ledger">${shown.length ? shown.map(r=>`
     <a class="ledger-row" href="${r.id?`#p-${r.id}`:"#top100"}">
-      <div><span class="rk">${r.rank}</span>${move(r)}</div>
+      <div><span class="rk${r.rank<=10?" top":""}">${r.rank}</span>${move(r)}</div>
       <div class="who">
         <div class="nm">${esc(r.name)}</div>
-        <div class="meta">${[r.pos,r.age!=null?`Age ${r.age}`:"",r.org,lvlTag(r.level),r.fv?`<span class="fv">FV ${esc(r.fv)}</span>`:"",r.eta?`ETA ${esc(r.eta)}`:"",r.score?`Score ${esc(r.score)}`:""].filter(Boolean).join("<span aria-hidden='true'>·</span>")}${r.found?"":` <span>Not matched to an MLB player yet</span>`}</div>
+        <div class="meta">${[r.pos,r.age!=null?`Age ${r.age}`:"",r.org,lvlTag(r.level),r.fv?`<span class="fv">FV ${esc(r.fv)}</span>`:"",r.eta?`ETA ${esc(r.eta)}`:"",r.score?`Score ${esc(r.score)}`:""].filter(Boolean).map(x=>`<span>${x}</span>`).join("")}${r.found?"":` <span>Not matched to an MLB player yet</span>`}</div>
         ${r.blurb?`<p class="blurb">${esc(r.blurb)}</p>`:""}
       </div>
       <div class="line">${summaryLine(r.summary)}</div>
@@ -391,7 +391,7 @@ function viewWire(){
   return head + Object.keys(days).sort().reverse().map(d=>`<section class="day"><h3>${fmtDay(d)}</h3>${days[d].map(t=>{
     const rk = rankOf[t.playerId];
     const kindCls = "k-"+t.type.split(/[ /]/)[0];
-    const path = (t.from&&t.to&&t.from.level&&t.to.level) ? `${esc(t.from.org||"")} ${esc(t.from.level)} → ${esc(t.to.level)}` : (t.to?.org?`${esc(t.to.org)} ${esc(t.to.level||"")}`:"");
+    const path = (t.from&&t.to&&t.from.level&&t.to.level) ? `${esc(t.from.org||"")} ${esc(t.from.level)} to ${esc(t.to.level)}` : (t.to?.org?`${esc(t.to.org)} ${esc(t.to.level||"")}`:"");
     const hasPage = rk || (ALL && ALL.players && ALL.players[t.playerId]);
     const name = hasPage ? `<a href="#p-${t.playerId}">${esc(t.player)}</a>` : esc(t.player);
     return `<div class="tx"><span class="kind ${kindCls}">${esc(t.type)}</span><div class="what">${rk?`<span class="rkbadge">#${rk}</span>`:""}<span class="pl">${name}</span><span class="path">${path}</span><span class="desc">${esc(t.description)}</span></div></div>`;
@@ -402,7 +402,7 @@ function viewWire(){
 function viewPlayer(id){
   const p = DATA.players?.[id];
   const r = (DATA.rankings||[]).find(x=>String(x.id)===String(id));
-  if (!p) return `<a class="back" href="#top100">← Back to rankings</a><div class="empty"><h3>Player not found</h3><p>This player isn't in the current data. He may have been removed from the rankings.</p></div>`;
+  if (!p) return `<a class="back" href="#top100">Back to rankings</a><div class="empty"><h3>Player not found</h3><p>This player isn't in the current data. He may have been removed from the rankings.</p></div>`;
   const bt = [p.bats&&`B ${p.bats}`, p.throws&&`T ${p.throws}`].filter(Boolean).join(" / ");
   const ladder = LEVELS.map(l=>`<div class="rung${p.levelsReached.includes(l)?" reached":""}${p.level===l?" now":""}">${l}</div>`).join("");
   const own = p.seasons.filter(s=>s.group===(p.isPitcher?"pitching":"hitting"));
@@ -410,12 +410,12 @@ function viewPlayer(id){
     ? `<thead><tr><th>Year</th><th>Lvl</th><th>Team</th><th>G</th><th>GS</th><th>IP</th><th>ERA</th><th>WHIP</th><th>SO</th><th>K%</th><th>BB%</th></tr></thead><tbody>${own.map(s=>`<tr><td>${s.season}</td><td>${s.level}</td><td>${esc(s.team)}</td><td>${s.line.g??""}</td><td>${s.line.gs??""}</td><td>${esc(s.line.ip??"")}</td><td>${esc(s.line.era??"")}</td><td>${esc(s.line.whip??"")}</td><td>${s.line.so??""}</td><td>${s.line.kPct??""}</td><td>${s.line.bbPct??""}</td></tr>`).join("")}</tbody>`
     : `<thead><tr><th>Year</th><th>Lvl</th><th>Team</th><th>G</th><th>PA</th><th>AVG</th><th>OBP</th><th>SLG</th><th>HR</th><th>SB</th><th>K%</th><th>BB%</th></tr></thead><tbody>${own.map(s=>`<tr><td>${s.season}</td><td>${s.level}</td><td>${esc(s.team)}</td><td>${s.line.g??""}</td><td>${s.line.pa??""}</td><td>${esc(s.line.avg??"")}</td><td>${esc(s.line.obp??"")}</td><td>${esc(s.line.slg??"")}</td><td>${s.line.hr??""}</td><td>${s.line.sb??""}</td><td>${s.line.kPct??""}</td><td>${s.line.bbPct??""}</td></tr>`).join("")}</tbody>`;
   const moves = (DATA.transactions||[]).filter(t=>String(t.playerId)===String(id));
-  return `<a class="back" href="#top100">← Back to rankings</a>
+  return `<a class="back" href="#top100">Back to rankings</a>
   <article class="card">
     <div class="card-head">
-      ${r?`<div><span class="rk">${r.rank}</span>${move(r)}</div>`:"<div></div>"}
+      ${r?`<div><span class="rk${r.rank<=10?" top":""}">${r.rank}</span>${move(r)}</div>`:"<div></div>"}
       <div><h2>${esc(p.name)}</h2>
-        <div class="meta">${[p.pos, p.age!=null?`Age ${p.age}`:"", bt, [p.height,p.weight?p.weight+" lb":""].filter(Boolean).join(", "), p.orgName, p.team].filter(Boolean).map(esc).join("<span aria-hidden='true'>·</span>")}</div>
+        <div class="meta">${[p.pos, p.age!=null?`Age ${p.age}`:"", bt, [p.height,p.weight?p.weight+" lb":""].filter(Boolean).join(", "), p.orgName, p.team].filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join("")}</div>
       </div>
     </div>
     <div class="card-body">
@@ -451,16 +451,16 @@ function viewFarm(){
     return `<span class="mv ${d>0?"up":"down"}">${d>0?"▲":"▼"} ${Math.abs(d)}</span>`;
   };
   const cd = (f)=> (f.prevCount==null || f.prevCount===f.count) ? "" : `<span class="cdelta ${f.count>f.prevCount?"up":"down"}">${f.count>f.prevCount?"+":"−"}${Math.abs(f.count-f.prevCount)} today</span>`;
-  const chip = (p)=> `<a class="pchip" href="#p-${p.id}"><b>#${p.rank}</b> ${esc(p.name)}<span>${esc(p.pos||"")}${p.level?` · ${esc(p.level)}`:""}</span></a>`;
+  const chip = (p)=> `<a class="pchip" href="#p-${p.id}"><b>#${p.rank}</b> ${esc(p.name)}<span>${esc(p.pos||"")}${p.level?`&ensp;${esc(p.level)}`:""}</span></a>`;
   const rows = F.map(f=>{
     const best = f.players[0];
     const list = !f.players.length ? `<span class="none">No players in the Top ${N}</span>`
       : unlocked ? f.players.map(chip).join("")
-      : `${chip(best)}${f.players.length>1 ? `<span class="locked-more">+${f.players.length-1} more · <button type="button" class="signin farm-signin">Subscribers see the full list</button></span>` : ""}`;
+      : `${chip(best)}${f.players.length>1 ? `<span class="locked-more">+${f.players.length-1} more. <button type="button" class="signin farm-signin">Subscribers see the full list</button></span>` : ""}`;
     return `<div class="farm-row" id="farm-${esc(f.org)}">
       <div class="farm-rk"><span class="rk">${f.rank}</span>${mv(f)}</div>
       <div class="farm-main">
-        <div class="farm-name"><a class="nm" href="#t-${esc(f.org)}">${esc(f.name)}</a><span class="org">${esc(f.org)}</span><a class="farm-top20" href="#t-${esc(f.org)}">Team Top 20 →</a></div>
+        <div class="farm-name"><a class="nm" href="#t-${esc(f.org)}">${esc(f.name)}</a><span class="org">${esc(f.org)}</span><a class="farm-top20" href="#t-${esc(f.org)}">Team Top 20</a></div>
         <div class="farm-bar" aria-hidden="true"><i style="width:${(f.count/max*100).toFixed(1)}%"></i></div>
         <div class="farm-meta"><span><b>${f.count}</b> in the Top ${N}</span>${f.top10?`<span><b>${f.top10}</b> in the top 10</span>`:""}<span><b>${f.top50}</b> in the top 50</span><span>${f.points} pts</span>${cd(f)}</div>
         <div class="farm-players">${list}</div>
@@ -475,22 +475,22 @@ function viewFarm(){
 function viewTeam(org){
   const T = DATA.teams || {};
   const orgs = Object.values(T).sort((a,b)=>a.name.localeCompare(b.name));
-  if (!orgs.length) return `<a class="back" href="#farm">← Farm systems</a><div class="empty"><h3>Coming with the next update</h3><p>Team lists fill in the next time the rankings are calculated.</p></div>`;
+  if (!orgs.length) return `<a class="back" href="#farm">Farm systems</a><div class="empty"><h3>Coming with the next update</h3><p>Team lists fill in the next time the rankings are calculated.</p></div>`;
   const t = T[org] || orgs[0];
   const farmRow = (DATA.farm||[]).find(f=>f.org===t.org);
   const size = t.list.length;
   const picker = `<select id="team-pick" aria-label="Choose a team">${orgs.map(o=>`<option value="${esc(o.org)}"${o.org===t.org?" selected":""}>${esc(o.name)}</option>`).join("")}</select>`;
-  const head = `<a class="back" href="#farm">← Farm systems</a>
-    <div class="sec-head"><div><h2 class="sec">${esc(t.name)} Top ${size||20}</h2><p>${farmRow?`Farm system rank: <b>#${farmRow.rank}</b> · ${farmRow.count} in the Top ${(DATA.rankings||[]).length}. `:""}Ranked by the same formula as the overall list. <a href="#method">How the rankings work</a>.</p></div><div class="filters">${picker}</div></div>`;
+  const head = `<a class="back" href="#farm">Farm systems</a>
+    <div class="sec-head"><div><h2 class="sec">${esc(t.name)} Top ${size||20}</h2><p>${farmRow?`Farm system rank: <b>#${farmRow.rank}</b>, with ${farmRow.count} in the Top ${(DATA.rankings||[]).length}. `:""}Ranked by the same formula as the overall list. <a href="#method">How the rankings work</a>.</p></div><div class="filters">${picker}</div></div>`;
   if (!size) return head + `<div class="empty">No ranked prospects for this organization yet.</div>`;
   const line = (x)=> x.pitcher
-    ? `${esc(x.line.era??"—")} ERA · ${x.line.kPct??"—"}% K · ${x.line.bbPct??"—"}% BB · ${esc(x.line.ip??"—")} IP`
-    : `${esc(x.line.avg??"—")}/${esc(x.line.obp??"—")}/${esc(x.line.slg??"—")} · ${x.line.hr??0} HR · ${x.line.sb??0} SB · ${x.line.pa??0} PA`;
+    ? `${esc(x.line.era??"—")} ERA&ensp;${x.line.kPct??"—"}% K&ensp;${x.line.bbPct??"—"}% BB&ensp;${esc(x.line.ip??"—")} IP`
+    : `${esc(x.line.avg??"—")}/${esc(x.line.obp??"—")}/${esc(x.line.slg??"—")}&ensp;${x.line.hr??0} HR&ensp;${x.line.sb??0} SB&ensp;${x.line.pa??0} PA`;
   const row = (x)=>`<a class="ledger-row" href="#p-${x.id}">
       <div><span class="rk">${x.orgRank}</span>${x.overall?`<span class="mv flat">#${x.overall} overall</span>`:""}</div>
       <div class="who"><div class="nm">${esc(x.name)}</div>
-        <div class="meta">${[x.pos, x.age!=null?`Age ${x.age}`:"", lvlTag(x.level), `Score ${esc(x.score)}`].filter(Boolean).join("<span aria-hidden='true'>·</span>")}</div></div>
-      <div class="line">${line(x)}<br>${esc(x.season||DATA.season||"")} · ${esc(x.levels.join("/"))}</div>
+        <div class="meta">${[x.pos, x.age!=null?`Age ${x.age}`:"", lvlTag(x.level), `Score ${esc(x.score)}`].filter(Boolean).map(x=>`<span>${x}</span>`).join("")}</div></div>
+      <div class="line">${line(x)}<br>${esc(x.season||DATA.season||"")}&ensp;${esc(x.levels.join("/"))}</div>
     </a>`;
   if (!unlocked) return head + `<div class="ledger">${row(t.list[0])}</div>` + gateHtml(`The rest of the ${t.name} Top ${size}`);
   return head + `<div class="ledger">${t.list.map(row).join("")}</div>`;
@@ -553,9 +553,9 @@ function viewPlayers(){
 
 // Player page for someone who isn't ranked: built from the full player list
 function viewIndexPlayer(id){
-  if (!ALL) { loadAll(); return `<a class="back" href="#players">← Back to players</a><p style="color:var(--muted)">Loading player…</p>`; }
+  if (!ALL) { loadAll(); return `<a class="back" href="#players">Back to players</a><p style="color:var(--muted)">Loading player…</p>`; }
   const p = ALL.players?.[id];
-  if (!p) return `<a class="back" href="#players">← Back to players</a><div class="empty"><h3>Player not found</h3><p>He isn't in this season's minor league data.</p></div>`;
+  if (!p) return `<a class="back" href="#players">Back to players</a><div class="empty"><h3>Player not found</h3><p>He isn't in this season's minor league data.</p></div>`;
   const pitch = p.pos==="P";
   const bt = [p.bats&&`B ${p.bats}`, p.throws&&`T ${p.throws}`].filter(Boolean).join(" / ");
   const rows = p.byLevel.filter(x=>x.group===(pitch?"pitching":"hitting"));
@@ -564,10 +564,10 @@ function viewIndexPlayer(id){
     : `<thead><tr><th>Year</th><th>Lvl</th><th>Team</th><th>G</th><th>PA</th><th>AVG</th><th>OBP</th><th>SLG</th><th>HR</th><th>SB</th><th>K%</th><th>BB%</th></tr></thead><tbody>${rows.map(s=>`<tr><td>${ALL.season}</td><td>${s.level}</td><td>${esc(s.team)}</td><td>${s.line.g??""}</td><td>${s.line.pa??""}</td><td>${esc(s.line.avg??"")}</td><td>${esc(s.line.obp??"")}</td><td>${esc(s.line.slg??"")}</td><td>${s.line.hr??""}</td><td>${s.line.sb??""}</td><td>${s.line.kPct??""}</td><td>${s.line.bbPct??""}</td></tr>`).join("")}</tbody>`;
   const reached = rows.map(r=>r.level);
   const moves = (DATA.transactions||[]).filter(t=>String(t.playerId)===String(id));
-  return `<a class="back" href="#players">← Back to players</a>
+  return `<a class="back" href="#players">Back to players</a>
   <article class="card">
     <div class="card-head"><div></div><div><h2>${esc(p.name)}</h2>
-      <div class="meta">${[p.pos, p.age!=null?`Age ${p.age}`:"", bt, ALL.orgs?.[p.org]||p.org, p.team].filter(Boolean).map(esc).join("<span aria-hidden='true'>·</span>")}</div></div></div>
+      <div class="meta">${[p.pos, p.age!=null?`Age ${p.age}`:"", bt, ALL.orgs?.[p.org]||p.org, p.team].filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join("")}</div></div></div>
     <div class="card-body">
       <div class="facts"><div class="fact"><div class="k">Current level</div><div class="v">${esc(p.level||"—")}</div></div><div class="fact"><div class="k">Ranked</div><div class="v">No</div></div></div>
       <div><h4>${esc(ALL.season)} levels</h4><div class="ladder">${LEVELS.map(l=>`<div class="rung${reached.includes(l)?" reached":""}${p.level===l?" now":""}">${l}</div>`).join("")}</div></div>
@@ -580,7 +580,7 @@ function viewIndexPlayer(id){
 
 // ---------- Methodology ----------
 function viewMethod(){
-  const D = { weights:{level:0.6,age:0.7,ops:8,opsBase:0.75,walk:0.04,walkBase:10,strikeout:0.04,strikeoutBase:22,kbb:0.1,kbbBase:15,era:0.25,eraBase:4,pitcherRisk:0.3,fullPA:400,fullIP:90,position:{C:0.6,SS:0.4,CF:0.2,"2B":0.1,"3B":0.1,LF:-0.3,RF:-0.3,"1B":-0.5,DH:-0.7}},
+  const D = { weights:{level:0.6,age:0.7,ops:8,opsBase:0.75,walk:0.04,walkBase:10,strikeout:0.04,strikeoutBase:22,kbb:0.1,kbbBase:15,era:0.25,eraBase:4,pitcherRisk:0.3,fullPA:400,fullIP:90},
     typicalAge:{ROK:19.5,A:20.5,"A+":21.5,AA:22.5,AAA:24}, eligibility:{minAB:25,minIP:5,fallbackPA:100,fallbackIP:30,rookieAB:130,rookieIP:50},
     consensus:[{label:"August list",source:"MLB Pipeline Top 100, August 2026 update",boost:1.2},{label:"June list",source:"MLB Pipeline Top 100, June 2026 update",boost:0.6},{label:"preseason list",source:"MLB Pipeline Top 100, preseason 2026",boost:0.2}] };
   const F = DATA.formula || D, W = F.weights, T = F.typicalAge, E = F.eligibility;
@@ -595,7 +595,7 @@ function viewMethod(){
   const posName = {C:"Catcher",SS:"Shortstop",CF:"Center field","2B":"Second base","3B":"Third base",LF:"Left field",RF:"Right field","1B":"First base",DH:"Designated hitter"};
   const sgn = (v)=> (v>0?"+":v<0?"−":"")+Math.abs(v).toFixed(2);
   const levelName = {ROK:"Rookie",A:"Single-A","A+":"High-A",AA:"Double-A",AAA:"Triple-A"};
-  return `<a class="back" href="#top100">← Back to rankings</a>
+  return `<a class="back" href="#top100">Back to rankings</a>
   <article class="method">
     <h2 class="sec">How the rankings work</h2>
     <p class="lede">The Top ${F.size||150} is sorted by a single score and recalculated every day from the latest stats. Every part of the formula is listed here, so anyone can check a ranking or argue with it.</p>
@@ -700,7 +700,7 @@ fetch("data/site.json", {cache:"no-cache"})
     DATA = d;
     const up = new Date(d.updated);
     $("#dl-left").textContent = `Updated ${up.toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}`;
-    $("#dl-right").textContent = `${d.season} season · ${(d.rankings||[]).length} ranked · ${(d.transactions||[]).length} moves on the wire`;
+    $("#dl-right").textContent = `${d.season} season, ${(d.rankings||[]).length} ranked, ${(d.transactions||[]).length} moves on the wire`;
     if ((d.rankings||[]).length) $("#nav-top").textContent = `Top ${d.rankings.length}`;
     if (d.preview) { const n=$("#preview-note"); n.textContent=d.preview; n.hidden=false; }
     render();
