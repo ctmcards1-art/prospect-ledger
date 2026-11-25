@@ -419,19 +419,10 @@ function scorePlayer(p, cons, cfg) {
     prod = (((L.kPct ?? 22) - (L.bbPct ?? 9) - W.kbbBase) * W.kbb + (W.eraBase - (parseFloat(L.era) || 4.5)) * W.era) * Math.min(1, ip / W.fullIP) - W.pitcherRisk;
   }
   const boost = cons ? cons.boost : 0;
-  // Position: weighted by share of games at each position; falls back to primary position
-  let posAdj = 0, posNote = "";
-  const PV = W.position || {};
-  if (!pitcher && Object.keys(PV).length) {
-    const shares = p.fld && Object.keys(p.fld).length ? p.fld : { [p.pos === "TWP" || p.pos === "Y" ? "DH" : p.pos]: 1 };
-    const tot = Object.values(shares).reduce((a, b) => a + b, 0) || 1;
-    for (const [k, v] of Object.entries(shares)) posAdj += (PV[k] ?? 0) * (v / tot);
-    posNote = Object.entries(shares).slice(0, 2).map(([k, v]) => `${k} ${Math.round((v / tot) * 100)}%`).join(", ");
-  }
   const sg = (v) => (v >= 0 ? "+" : "\u2212") + Math.abs(v).toFixed(2);
   return {
-    score: lev + ag + prod + posAdj + boost, top, pitcher, L, short,
-    detail: `Level ${lev.toFixed(2)} (${LEVEL_NAMES[top]}) \u00b7 Age ${sg(ag)} \u00b7 Production ${sg(prod)}${pitcher ? "" : ` \u00b7 Position ${sg(posAdj)} (${posNote})`} \u00b7 Consensus ${sg(boost)} (${cons ? cons.label : "not on a list"})`,
+    score: lev + ag + prod + boost, top, pitcher, L, short,
+    detail: `Level ${lev.toFixed(2)} (${LEVEL_NAMES[top]}) \u00b7 Age ${sg(ag)} \u00b7 Production ${sg(prod)} \u00b7 Consensus ${sg(boost)} (${cons ? cons.label : "not on a list"})`,
   };
 }
 
