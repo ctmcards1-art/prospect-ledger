@@ -3504,7 +3504,7 @@
   "orgs": {
    "STL": {
     "rank": 1,
-    "count": 10
+    "count": 11
    },
    "MIL": {
     "rank": 2,
@@ -3512,7 +3512,7 @@
    },
    "MIA": {
     "rank": 3,
-    "count": 9
+    "count": 10
    },
    "COL": {
     "rank": 4,
@@ -3524,61 +3524,61 @@
    },
    "CLE": {
     "rank": 6,
-    "count": 8
+    "count": 7
    },
-   "BAL": {
+   "SF": {
     "rank": 7,
     "count": 7
    },
-   "SEA": {
+   "BAL": {
     "rank": 8,
-    "count": 6
+    "count": 7
    },
-   "SF": {
+   "SEA": {
     "rank": 9,
     "count": 6
    },
-   "ATH": {
+   "MIN": {
     "rank": 10,
     "count": 6
    },
-   "AZ": {
+   "ATH": {
     "rank": 11,
     "count": 6
    },
-   "TB": {
+   "ATL": {
     "rank": 12,
-    "count": 5
+    "count": 6
    },
    "LAA": {
     "rank": 13,
     "count": 5
    },
-   "ATL": {
-    "rank": 14,
-    "count": 5
-   },
-   "CIN": {
-    "rank": 15,
-    "count": 5
-   },
    "BOS": {
-    "rank": 16,
+    "rank": 14,
+    "count": 4
+   },
+   "TB": {
+    "rank": 15,
     "count": 4
    },
    "PHI": {
+    "rank": 16,
+    "count": 4
+   },
+   "AZ": {
     "rank": 17,
     "count": 4
    },
-   "MIN": {
+   "NYM": {
     "rank": 18,
     "count": 4
    },
-   "WSH": {
+   "TOR": {
     "rank": 19,
     "count": 4
    },
-   "TOR": {
+   "DET": {
     "rank": 20,
     "count": 4
    },
@@ -3586,11 +3586,11 @@
     "rank": 21,
     "count": 4
    },
-   "DET": {
+   "CIN": {
     "rank": 22,
     "count": 4
    },
-   "NYM": {
+   "WSH": {
     "rank": 23,
     "count": 3
    },
@@ -3602,11 +3602,11 @@
     "rank": 25,
     "count": 3
    },
-   "KC": {
-    "rank": 26,
-    "count": 3
-   },
    "CHC": {
+    "rank": 26,
+    "count": 2
+   },
+   "NYY": {
     "rank": 27,
     "count": 2
    },
@@ -3618,7 +3618,7 @@
     "rank": 29,
     "count": 1
    },
-   "NYY": {
+   "KC": {
     "rank": 30,
     "count": 1
    }
