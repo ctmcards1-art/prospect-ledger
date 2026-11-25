@@ -17,19 +17,7 @@
     "eraBase": 4.0,
     "pitcherRisk": 0.3,
     "fullPA": 400,
-    "fullIP": 90,
-    "position": {
-      "C": 0.6,
-      "SS": 0.4,
-      "CF": 0.2,
-      "2B": 0.1,
-      "3B": 0.1,
-      "LF": -0.3,
-      "RF": -0.3,
-      "OF": -0.13,
-      "1B": -0.5,
-      "DH": -0.7
-    }
+    "fullIP": 90
   },
   "typicalAge": {
     "ROK": 19.5,
